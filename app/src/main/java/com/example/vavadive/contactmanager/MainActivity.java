@@ -101,13 +101,13 @@ public class MainActivity extends AppCompatActivity {
         contacts_list.setAdapter(contactAdapter);
         registerForContextMenu(contacts_list);
 
-        final Intent editContact = new Intent(this, AddContactActivity.class);
+        final Intent viewContact = new Intent(this, ViewContactActivity.class);
         contacts_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                editContact.putExtra(getResources().getString(R.string.key), l);
-                editContact.putExtra("mode", Mode.EDIT.ordinal());
-                startActivityForResult(editContact, REQUEST_EDIT);
+                viewContact.putExtra(getResources().getString(R.string.key), l);
+                viewContact.putExtra("mode", Mode.VIEW.ordinal());
+                startActivityForResult(viewContact, REQUEST_EDIT);
             }
         });
     }

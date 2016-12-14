@@ -3,6 +3,7 @@
     <string name="person_name">Name</string>
     <string name="add_button">Save</string>
     <string name="cancel_button">Cancel</string>
+    <string name="edit">Edit</string>
     <string name="view_contacts">View All</string>
     <string name="type_prompt">Choose a type</string>
     <string name="storage">FieldX_Contacts</string>
