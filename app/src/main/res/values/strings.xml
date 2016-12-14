@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Contacts</string>
+    <string name="person_name">Name</string>
+    <string name="add_button">Save</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="view_contacts">View All</string>
+    <string name="type_prompt">Choose a type</string>
+    <string name="storage">FieldX_Contacts</string>
+    <string name="contacts_list">contacts_list</string>
+    <string name="save_success">Saved successfully</string>
+    <string name="cancelled">Not saved</string>
+    <string name="key">key</string>
+    <string name="firstName">First Name:</string>
+    <string name="middleName">Middle Name:</string>
+    <string name="lastName">Last Name:</string>
+    <string name="contactType">Groups</string>
+    <string name="email">Email</string>
+    <string name="address">Address</string>
+    <string name="phone">Phone</string>
+    <string name="add_field">Add another field</string>
+    <string name="search_hint">Search</string>
+</resources>

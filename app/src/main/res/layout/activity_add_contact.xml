@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.vavadive.contactmanager.AddContactActivity">
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/editText_firstName"
+        android:clickable="true"
+        android:enabled="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/add_button"
+        android:id="@+id/add_button"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/cancel_button"
+        android:layout_toEndOf="@+id/cancel_button"
+        android:layout_marginLeft="72dp"
+        android:layout_marginStart="72dp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:id="@+id/editText_middleName"
+        android:inputType="textPersonName"
+        android:layout_below="@+id/editText_firstName"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner_contact_types"
+        android:prompt="@string/type_prompt"
+        android:layout_marginTop="53dp"
+        android:layout_below="@+id/editText_middleName"
+        android:layout_alignLeft="@+id/editText_middleName"
+        android:layout_alignStart="@+id/editText_middleName"
+        android:layout_alignRight="@+id/editText_middleName"
+        android:layout_alignEnd="@+id/editText_middleName" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel_button"
+        android:id="@+id/cancel_button"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/spinner_address_types"
+        android:layout_alignEnd="@+id/spinner_address_types" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText_lastName"
+        android:layout_below="@+id/editText_middleName"
+        android:layout_alignRight="@+id/editText_middleName"
+        android:layout_alignEnd="@+id/editText_middleName"
+        android:layout_alignLeft="@+id/editText_middleName"
+        android:layout_alignStart="@+id/editText_middleName"
+        android:inputType="textPersonName" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner_phone_types"
+        android:layout_below="@+id/spinner_contact_types"
+        android:layout_toStartOf="@+id/spinner_contact_types"
+        android:layout_toLeftOf="@+id/spinner_contact_types"
+        android:layout_alignParentLeft="true"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="phone"
+        android:ems="10"
+        android:id="@+id/editText_phone"
+        android:layout_alignBottom="@+id/spinner_phone_types"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner_email_types"
+        android:layout_below="@+id/spinner_phone_types"
+        android:layout_alignRight="@+id/spinner_phone_types"
+        android:layout_alignEnd="@+id/spinner_phone_types"
+        android:layout_alignParentLeft="true"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:ems="10"
+        android:id="@+id/editText_email"
+        android:layout_above="@+id/spinner_address_types"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner_address_types"
+        android:layout_below="@+id/spinner_email_types"
+        android:layout_alignRight="@+id/spinner_email_types"
+        android:layout_alignEnd="@+id/spinner_email_types"
+        android:layout_alignParentLeft="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPostalAddress"
+        android:ems="10"
+        android:id="@+id/editText_address"
+        android:layout_alignBottom="@+id/spinner_address_types"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/firstName"
+        android:id="@+id/textView_firstName"
+        android:layout_above="@+id/editText_middleName"
+        android:layout_toLeftOf="@+id/editText_firstName"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/middleName"
+        android:id="@+id/textView_middleName"
+        android:layout_above="@+id/editText_lastName"
+        android:layout_toLeftOf="@+id/editText_firstName"
+        android:layout_below="@+id/editText_firstName"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/lastName"
+        android:id="@+id/textView_lastName"
+        android:layout_alignBottom="@+id/editText_lastName"
+        android:layout_toLeftOf="@+id/editText_middleName"
+        android:layout_below="@+id/editText_middleName"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/contactType"
+        android:id="@+id/textView_ContactType"
+        android:layout_toLeftOf="@+id/spinner_contact_types"
+        android:layout_above="@+id/spinner_phone_types"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/spinner_contact_types" />
+
+</RelativeLayout>
