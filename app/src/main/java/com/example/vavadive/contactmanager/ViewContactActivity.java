@@ -1,8 +1,12 @@
 package com.example.vavadive.contactmanager;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
@@ -12,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 
@@ -88,9 +93,26 @@ public class ViewContactActivity extends AppCompatActivity {
         phoneType.setSelection(phone.getType().ordinal());
         phoneType.setEnabled(false);
 
+        final String toCall = phone.getPhone();
+
         EditText phoneNo = (EditText) phoneRow.findViewById(R.id.editText_phone);
-        phoneNo.setText(phone.getPhone());
+        phoneNo.setText(toCall);
         phoneNo.setInputType(InputType.TYPE_NULL);
+
+        ImageView call = (ImageView) phoneRow.findViewById(R.id.call);
+        call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Uri number = Uri.parse("tel:" + toCall);
+                Intent callIntent = new Intent(Intent.ACTION_CALL, number);
+
+                int permissionCheck = ContextCompat.checkSelfPermission(ViewContactActivity.this,
+                        Manifest.permission.CALL_PHONE);
+                if(permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                    startActivity(callIntent);
+                }
+            }
+        });
     }
 
     private void populateEmail(Email email, View emailRow) {
