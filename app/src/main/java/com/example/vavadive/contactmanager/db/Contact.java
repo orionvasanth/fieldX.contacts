@@ -129,14 +129,14 @@ public class Contact {
     }
 
     @DatabaseField
-    private Date lastModified;
+    private Long lastModified;
 
 
-    public Date getLastModified() {
+    public Long getLastModified() {
         return lastModified;
     }
 
-    public void setLastModified(Date lastModified) {
+    public void setLastModified(Long lastModified) {
         this.lastModified = lastModified;
     }
 }

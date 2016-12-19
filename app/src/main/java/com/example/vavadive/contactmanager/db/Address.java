@@ -22,6 +22,10 @@ public class Address {
     @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
     private Contact contact;
 
+    public Long getId() {
+        return _id;
+    }
+
     public AddressType getType() {
         return type;
     }
@@ -44,5 +48,31 @@ public class Address {
 
     public void setContact(Contact contact) {
         this.contact = contact;
+    }
+
+
+    @DatabaseField
+    private Long lastModified;
+
+
+    public Long getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Long lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof Address) {
+            Address address = (Address) o;
+
+            if((getId().equals(address.getId())) &&
+                    getLastModified().equals(address.getLastModified())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case Edit:
-                Intent editContact = new Intent(this, AddContactActivity.class);
+                Intent editContact = new Intent(this, EditContactActivity.class);
                 editContact.putExtra(getResources().getString(R.string.key), info.id);
                 editContact.putExtra("mode", Mode.EDIT.ordinal());
                 startActivityForResult(editContact, REQUEST_EDIT);

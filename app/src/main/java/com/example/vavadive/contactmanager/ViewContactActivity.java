@@ -33,6 +33,10 @@ import com.example.vavadive.contactmanager.db.Phone;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Created by vavadive on 6/22/2016.
@@ -40,7 +44,7 @@ import java.util.Collection;
 public class ViewContactActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
     private Mode mode;
-    private Long CONTACT_ID = 0l;
+    private Long CONTACT_ID = 0L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +77,7 @@ public class ViewContactActivity extends AppCompatActivity {
         edit.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                Intent editContact = new Intent(ViewContactActivity.this, AddContactActivity.class);
+                Intent editContact = new Intent(ViewContactActivity.this, EditContactActivity.class);
                 editContact.putExtra(getResources().getString(R.string.key), CONTACT_ID);
                 editContact.putExtra("mode", Mode.EDIT.ordinal());
                 startActivityForResult(editContact, MainActivity.REQUEST_EDIT);
@@ -150,21 +154,23 @@ public class ViewContactActivity extends AppCompatActivity {
     }
 
     private void populateEmails(Collection<Email> emails) {
-        TableLayout emailTable = (TableLayout) findViewById(R.id.email_tableLayout);
-        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        if(!emails.isEmpty()) {
+            TableLayout emailTable = (TableLayout) findViewById(R.id.email_tableLayout);
+            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        View row = inflater.inflate(R.layout.email_table_header, emailTable, false);
-        emailTable.addView(row);
-
-        Object[] emailObjects = emails.toArray();
-
-        for(int i = 0; i < emails.size(); i++) {
-            row = inflater.inflate(R.layout.email_table_row_view, emailTable, false);
-
-            Email email = ((Email)emailObjects[i]);
-            populateEmail(email, row);
-
+            View row = inflater.inflate(R.layout.email_table_header, emailTable, false);
             emailTable.addView(row);
+
+            Object[] emailObjects = emails.toArray();
+
+            for (int i = 0; i < emails.size(); i++) {
+                row = inflater.inflate(R.layout.email_table_row_view, emailTable, false);
+
+                Email email = ((Email) emailObjects[i]);
+                populateEmail(email, row);
+
+                emailTable.addView(row);
+            }
         }
     }
 
@@ -189,36 +195,75 @@ public class ViewContactActivity extends AppCompatActivity {
     }
 
     private void populateContact(Contact contact) {
-        EditText firstName = (EditText) findViewById(R.id.editText_firstName);
-        firstName.setText(contact.getFirstName());
-        firstName.setInputType(InputType.TYPE_NULL);
+        if(contact != null) {
+            EditText firstName = (EditText) findViewById(R.id.editText_firstName);
+            firstName.setText(contact.getFirstName());
+            firstName.setInputType(InputType.TYPE_NULL);
 
-        EditText middleName = (EditText) findViewById(R.id.editText_middleName);
-        middleName.setText(contact.getMiddleName());
-        middleName.setInputType(InputType.TYPE_NULL);
+            EditText middleName = (EditText) findViewById(R.id.editText_middleName);
+            middleName.setText(contact.getMiddleName());
+            middleName.setInputType(InputType.TYPE_NULL);
 
-        EditText lastName = (EditText) findViewById(R.id.editText_lastName);
-        lastName.setText(contact.getLastName());
-        lastName.setInputType(InputType.TYPE_NULL);
+            EditText lastName = (EditText) findViewById(R.id.editText_lastName);
+            lastName.setText(contact.getLastName());
+            lastName.setInputType(InputType.TYPE_NULL);
 
-        Spinner contactType = (Spinner)findViewById(R.id.spinner_contact_types);
-        ArrayAdapter<ContactType> contactTypeArrayAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, ContactType.values());
-        contactTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        contactType.setAdapter(contactTypeArrayAdapter);
-        contactType.setSelection(contact.getContactType().ordinal());
-        contactType.setEnabled(false);
+            Spinner contactType = (Spinner) findViewById(R.id.spinner_contact_types);
+            ArrayAdapter<ContactType> contactTypeArrayAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_item, ContactType.values());
+            contactTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            contactType.setAdapter(contactTypeArrayAdapter);
+            contactType.setSelection(contact.getContactType().ordinal());
+            contactType.setEnabled(false);
+        }
     }
 
     private void populate(long id) {
         try {
             Contact contact = databaseHelper.getContactDao().queryForId(id);
-            if(contact != null) {
-                populateContact(contact);
-                populatePhones(contact.getPhones());
-                populateEmails(contact.getEmails());
-                populateAddresses(contact.getAddresses());
-            }
+            populateContact(contact);
+            populatePhones(contact.getPhones());
+            populateEmails(contact.getEmails());
+            populateAddresses(contact.getAddresses());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updatePhones(Collection<Phone> phones) {
+        TableLayout phoneTable = (TableLayout) findViewById(R.id.phone_tableLayout);
+        if(phoneTable != null) {
+            phoneTable.removeAllViews();
+        }
+
+        populatePhones(phones);
+    }
+
+    private void updateEmails(Collection<Email> emails) {
+        TableLayout emailTable = (TableLayout) findViewById(R.id.email_tableLayout);
+        if(emailTable != null) {
+            emailTable.removeAllViews();
+        }
+
+        populateEmails(emails);
+    }
+
+    private void updateAddresses(Collection<Address> addresses) {
+        populateAddresses(addresses);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        try {
+            Contact modified_contact = databaseHelper.getContactDao().queryForId(CONTACT_ID);
+
+            populateContact(modified_contact);
+
+            updatePhones(modified_contact.getPhones());
+            updateEmails(modified_contact.getEmails());
+            updateAddresses(modified_contact.getAddresses());
         } catch (SQLException e) {
             e.printStackTrace();
         }

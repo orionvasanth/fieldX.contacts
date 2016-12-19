@@ -2,6 +2,7 @@ package com.example.vavadive.contactmanager;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -31,6 +32,7 @@ import com.example.vavadive.contactmanager.db.Phone;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * Created by vavadive on 6/21/2016.
@@ -38,7 +40,7 @@ import java.util.Collection;
 public class AddContactActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
     private Mode mode;
-    private Long CONTACT_ID = 0l;
+    private Long CONTACT_ID = 0L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,32 +49,45 @@ public class AddContactActivity extends AppCompatActivity {
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null) {
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         Spinner contactType = (Spinner)findViewById(R.id.spinner_contact_types);
         ArrayAdapter<ContactType> contactTypeArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, ContactType.values());
-        contactTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        contactType.setAdapter(contactTypeArrayAdapter);
+
+        if(contactTypeArrayAdapter != null) {
+            contactTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            contactType.setAdapter(contactTypeArrayAdapter);
+        }
 
         Spinner phoneType = (Spinner) findViewById(R.id.spinner_phone_types);
         ArrayAdapter<PhoneType> phoneTypeArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, PhoneType.values());
-        phoneTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        phoneType.setAdapter(phoneTypeArrayAdapter);
+        if(phoneTypeArrayAdapter != null) {
+            phoneTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            phoneType.setAdapter(phoneTypeArrayAdapter);
+        }
 
         Spinner emailType = (Spinner) findViewById(R.id.spinner_email_types);
         ArrayAdapter<EmailType> emailTypeArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, EmailType.values());
-        emailTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        emailType.setAdapter(emailTypeArrayAdapter);
+        if(emailTypeArrayAdapter != null) {
+            emailTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            emailType.setAdapter(emailTypeArrayAdapter);
+        }
 
         Spinner addressType = (Spinner) findViewById(R.id.spinner_address_types);
         ArrayAdapter<AddressType> addressTypeArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, AddressType.values());
-        addressTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        addressType.setAdapter(addressTypeArrayAdapter);
+        if(addressTypeArrayAdapter != null) {
+            addressTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            addressType.setAdapter(addressTypeArrayAdapter);
+        }
 
         databaseHelper = new DatabaseHelper(this);
 
@@ -98,24 +113,26 @@ public class AddContactActivity extends AppCompatActivity {
         }
 
         TableLayout phoneTable = (TableLayout) findViewById(R.id.phone_tableLayout);
+        if(phoneTable != null) {
+            int count = phoneTable.getChildCount();
+            for (int i = 1; i < count; i++) {
+                View phoneRow = phoneTable.getChildAt(i);
+                Spinner phoneType = (Spinner) phoneRow.findViewById(R.id.spinner_phone_types);
+                EditText phone = (EditText) phoneRow.findViewById(R.id.editText_phone);
+                String phoneNo = phone.getText().toString();
 
-        int count = phoneTable.getChildCount();
-        for(int i = 1; i < count; i++) {
-            View phoneRow = phoneTable.getChildAt(i);
-            Spinner phoneType = (Spinner) phoneRow.findViewById(R.id.spinner_phone_types);
-            EditText phone = (EditText) phoneRow.findViewById(R.id.editText_phone);
-            String phoneNo = phone.getText().toString();
+                if (phoneNo != null && phoneNo.length() != 0) {
+                    Phone lPhone = new Phone();
+                    lPhone.setPhone(phoneNo);
+                    lPhone.setType((PhoneType) phoneType.getSelectedItem());
+                    lPhone.setLastModified(new Date().getTime());
+                    lPhone.setContact(contact);
 
-            if(phoneNo != null && phoneNo.length() != 0) {
-                Phone lPhone = new Phone();
-                lPhone.setPhone(phoneNo);
-                lPhone.setType((PhoneType) phoneType.getSelectedItem());
-                lPhone.setContact(contact);
-
-                try {
-                    databaseHelper.getPhoneDao().createIfNotExists(lPhone);
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                    try {
+                        databaseHelper.getPhoneDao().createIfNotExists(lPhone);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -129,24 +146,26 @@ public class AddContactActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         TableLayout emailTable = (TableLayout) findViewById(R.id.email_tableLayout);
+        if(emailTable != null) {
+            int count = emailTable.getChildCount();
+            for (int i = 1; i < count; i++) {
+                View emailRow = emailTable.getChildAt(i);
+                Spinner emailType = (Spinner) emailRow.findViewById(R.id.spinner_email_types);
+                EditText email = (EditText) emailRow.findViewById(R.id.editText_email);
+                String emailId = email.getText().toString();
 
-        int count = emailTable.getChildCount();
-        for(int i = 1; i < count; i++) {
-            View emailRow = emailTable.getChildAt(i);
-            Spinner emailType = (Spinner) emailRow.findViewById(R.id.spinner_email_types);
-            EditText email = (EditText) emailRow.findViewById(R.id.editText_email);
-            String emailId = email.getText().toString();
+                if (emailId != null && emailId.length() != 0) {
+                    Email lemail = new Email();
+                    lemail.setEmail(emailId);
+                    lemail.setType((EmailType) emailType.getSelectedItem());
+                    lemail.setLastModified(new Date().getTime());
+                    lemail.setContact(contact);
 
-            if(emailId != null && emailId.length() != 0) {
-                Email lemail = new Email();
-                lemail.setEmail(emailId);
-                lemail.setType((EmailType) emailType.getSelectedItem());
-                lemail.setContact(contact);
-
-                try {
-                    databaseHelper.getEmailDao().createIfNotExists(lemail);
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                    try {
+                        databaseHelper.getEmailDao().createIfNotExists(lemail);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -158,24 +177,14 @@ public class AddContactActivity extends AppCompatActivity {
         EditText lastName = (EditText) findViewById(R.id.editText_lastName);
         Spinner contactType = (Spinner)findViewById(R.id.spinner_contact_types);
 
-        Contact lContact = null;
-        if(mode.equals(Mode.CREATE))
-        {
-            lContact = new Contact();
-        } else if(mode.equals(Mode.EDIT)) {
-            try {
-                lContact = databaseHelper.getContactDao().queryForId(CONTACT_ID);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
+        Contact lContact = new Contact();
         lContact.setFirstName(firstName.getText().toString());
         lContact.setMiddleName(middleName.getText().toString());
         lContact.setLastName(lastName.getText().toString());
         lContact.setContactType((ContactType) contactType.getSelectedItem());
+        lContact.setLastModified(new Date().getTime());
 
-        if(firstName.isDirty() || middleName.isDirty() || lastName.isDirty()) {
+        if (validateCreation()) {
             try {
                 lContact = databaseHelper.getContactDao().createIfNotExists(lContact);
 
@@ -192,18 +201,21 @@ public class AddContactActivity extends AppCompatActivity {
                     lAddress.setType((AddressType) addressType.getSelectedItem());
                     lAddress.setContact(lContact);
 
-                    lAddress = databaseHelper.getAddressDao().createIfNotExists(lAddress);
+                    databaseHelper.getAddressDao().createIfNotExists(lAddress);
                 }
-
                 setResult(RESULT_OK);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } else {
-
         }
 
         finish();
+    }
+
+    private boolean validateCreation() {
+        EditText firstName = (EditText) findViewById(R.id.editText_firstName);
+
+        return firstName.getText().toString().length() != 0;
     }
 
     public void addListener() {
@@ -225,114 +237,129 @@ public class AddContactActivity extends AppCompatActivity {
         });*/
 
         final Button add_field_button = (Button) findViewById(R.id.add_field);
-        add_field_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                PopupMenu add_field_popup = new PopupMenu(AddContactActivity.this,
-                        add_field_button);
-                Menu add_field_popup_menu = add_field_popup.getMenu();
 
-                AddFieldMenuItem[] values = AddFieldMenuItem.values();
-                for(int i = 0; i < values.length; i++) {
-                    add_field_popup_menu.add(values[i].getDisplayedName());
-                }
+        if(add_field_button != null) {
+            add_field_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PopupMenu add_field_popup = new PopupMenu(AddContactActivity.this,
+                            add_field_button);
+                    Menu add_field_popup_menu = add_field_popup.getMenu();
 
-                add_field_popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        switch (AddFieldMenuItem.valueOf(item.getTitle().toString())) {
-                            case Phone:
-                                addPhone();
-                                break;
-                            case Email:
-                                addEmail();
-                                break;
-                        }
-                        return false;
+                    AddFieldMenuItem[] values = AddFieldMenuItem.values();
+                    for (AddFieldMenuItem value : values) {
+                        add_field_popup_menu.add(value.getDisplayedName());
                     }
-                });
 
-                add_field_popup.show();
-            }
-        });
+                    add_field_popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (AddFieldMenuItem.valueOf(item.getTitle().toString())) {
+                                case Phone:
+                                    addPhone();
+                                    break;
+                                case Email:
+                                    addEmail();
+                                    break;
+                            }
+                            return false;
+                        }
+                    });
+
+                    add_field_popup.show();
+                }
+            });
+        }
 
         ImageView add_email = (ImageView) findViewById(R.id.add_email);
-        add_email.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addEmail();
-            }
-        });
+        if(add_email != null) {
+            add_email.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    addEmail();
+                }
+            });
+        }
 
         ImageView add_phone = (ImageView) findViewById(R.id.add_phone);
-        add_phone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addPhone();
-            }
-        });
+        if(add_phone != null) {
+            add_phone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    addPhone();
+                }
+            });
+        }
 
         ImageView remove_email = (ImageView) findViewById(R.id.remove_email);
-        remove_email.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                removeField(view);
-            }
-        });
+        if(remove_email != null) {
+            remove_email.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    removeField(view);
+                }
+            });
+        }
 
         ImageView remove_phone = (ImageView) findViewById(R.id.remove_phone);
-        remove_phone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                removeField(view);
-            }
-        });
+        if(remove_phone != null) {
+            remove_phone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    removeField(view);
+                }
+            });
+        }
     }
 
     private void addPhone() {
         LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         TableLayout phoneTable = (TableLayout) findViewById(R.id.phone_tableLayout);
-        View row = inflater.inflate(R.layout.phone_table_row, phoneTable, false);
+        if(phoneTable != null) {
+            View row = inflater.inflate(R.layout.phone_table_row, phoneTable, false);
 
-        Spinner phoneType = (Spinner) row.findViewById(R.id.spinner_phone_types);
-        ArrayAdapter<PhoneType> phoneTypeArrayAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, PhoneType.values());
-        phoneTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        phoneType.setAdapter(phoneTypeArrayAdapter);
+            Spinner phoneType = (Spinner) row.findViewById(R.id.spinner_phone_types);
+            ArrayAdapter<PhoneType> phoneTypeArrayAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_item, PhoneType.values());
+            phoneTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            phoneType.setAdapter(phoneTypeArrayAdapter);
 
-        ImageView remove_phone = (ImageView) row.findViewById(R.id.remove_phone);
-        remove_phone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                removeField(view);
-            }
-        });
+            ImageView remove_phone = (ImageView) row.findViewById(R.id.remove_phone);
+            remove_phone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    removeField(view);
+                }
+            });
 
-        phoneTable.addView(row);
+            phoneTable.addView(row);
+        }
     }
 
     private void addEmail() {
         LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         TableLayout emailTable = (TableLayout) findViewById(R.id.email_tableLayout);
-        View row = inflater.inflate(R.layout.email_table_row, emailTable, false);
+        if(emailTable != null) {
+            View row = inflater.inflate(R.layout.email_table_row, emailTable, false);
 
-        Spinner emailType = (Spinner) row.findViewById(R.id.spinner_email_types);
-        ArrayAdapter<EmailType> emailTypeArrayAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, EmailType.values());
-        emailTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        emailType.setAdapter(emailTypeArrayAdapter);
+            Spinner emailType = (Spinner) row.findViewById(R.id.spinner_email_types);
+            ArrayAdapter<EmailType> emailTypeArrayAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_item, EmailType.values());
+            emailTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            emailType.setAdapter(emailTypeArrayAdapter);
 
-        ImageView remove_email = (ImageView) row.findViewById(R.id.remove_email);
-        remove_email.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                removeField(view);
-            }
-        });
+            ImageView remove_email = (ImageView) row.findViewById(R.id.remove_email);
+            remove_email.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    removeField(view);
+                }
+            });
 
-        emailTable.addView(row);
+            emailTable.addView(row);
+        }
     }
 
     private void removeField(View view) {
@@ -406,33 +433,35 @@ public class AddContactActivity extends AppCompatActivity {
         if(!phones.isEmpty()) {
             TableLayout phoneTable = (TableLayout) findViewById(R.id.phone_tableLayout);
 
-            if (phones.size() > 1) {
-                Object[] phoneObjects = phones.toArray();
-                View phoneRow = phoneTable.getChildAt(1);
+            if(phoneTable != null) {
+                if (phones.size() > 1) {
+                    Object[] phoneObjects = phones.toArray();
+                    View phoneRow = phoneTable.getChildAt(1);
 
-                populatePhone((Phone) phoneObjects[0], phoneRow);
-                LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    populatePhone((Phone) phoneObjects[0], phoneRow);
+                    LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-                for (int i = 1; i < phones.size(); i++) {
-                    View row = inflater.inflate(R.layout.phone_table_row, null);
-                    Phone phone = ((Phone) phoneObjects[i]);
+                    for (int i = 1; i < phones.size(); i++) {
+                        View row = inflater.inflate(R.layout.phone_table_row, phoneTable, false);
+                        Phone phone = ((Phone) phoneObjects[i]);
 
-                    Spinner phoneType = (Spinner) row.findViewById(R.id.spinner_phone_types);
-                    ArrayAdapter<PhoneType> phoneTypeArrayAdapter = new ArrayAdapter<>(this,
-                            android.R.layout.simple_spinner_item, PhoneType.values());
-                    phoneType.setAdapter(phoneTypeArrayAdapter);
-                    phoneType.setSelection(phone.getType().ordinal());
+                        Spinner phoneType = (Spinner) row.findViewById(R.id.spinner_phone_types);
+                        ArrayAdapter<PhoneType> phoneTypeArrayAdapter = new ArrayAdapter<>(this,
+                                android.R.layout.simple_spinner_item, PhoneType.values());
+                        phoneType.setAdapter(phoneTypeArrayAdapter);
+                        phoneType.setSelection(phone.getType().ordinal());
 
-                    EditText phoneNo = (EditText) row.findViewById(R.id.editText_phone);
-                    phoneNo.setText(phone.getPhone());
+                        EditText phoneNo = (EditText) row.findViewById(R.id.editText_phone);
+                        phoneNo.setText(phone.getPhone());
 
-                    phoneTable.addView(row);
+                        phoneTable.addView(row);
+                    }
+                } else {
+                    Phone phone = (Phone) phones.toArray()[0];
+                    View phoneRow = phoneTable.getChildAt(1);
+
+                    populatePhone(phone, phoneRow);
                 }
-            } else {
-                Phone phone = (Phone) phones.toArray()[0];
-                View phoneRow = phoneTable.getChildAt(1);
-
-                populatePhone(phone, phoneRow);
             }
         }
     }
@@ -440,34 +469,35 @@ public class AddContactActivity extends AppCompatActivity {
     private void populateEmails(Collection<Email> emails) {
         if(!emails.isEmpty()) {
             TableLayout emailTable = (TableLayout) findViewById(R.id.email_tableLayout);
+            if(emailTable != null) {
+                if (emails.size() > 1) {
+                    Object[] emailObjects = emails.toArray();
+                    View emailRow = emailTable.getChildAt(1);
 
-            if (emails.size() > 1) {
-                Object[] emailObjects = emails.toArray();
-                View emailRow = emailTable.getChildAt(1);
+                    populateEmail((Email) emailObjects[0], emailRow);
+                    LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-                populateEmail((Email) emailObjects[0], emailRow);
-                LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    for (int i = 1; i < emails.size(); i++) {
+                        View row = inflater.inflate(R.layout.email_table_row, emailTable, false);
+                        Email email = ((Email) emailObjects[i]);
 
-                for (int i = 1; i < emails.size(); i++) {
-                    View row = inflater.inflate(R.layout.email_table_row, null);
-                    Email email = ((Email) emailObjects[i]);
+                        Spinner emailType = (Spinner) row.findViewById(R.id.spinner_email_types);
+                        ArrayAdapter<EmailType> emailTypeArrayAdapter = new ArrayAdapter<>(this,
+                                android.R.layout.simple_spinner_item, EmailType.values());
+                        emailType.setAdapter(emailTypeArrayAdapter);
+                        emailType.setSelection(email.getType().ordinal());
 
-                    Spinner emailType = (Spinner) row.findViewById(R.id.spinner_email_types);
-                    ArrayAdapter<EmailType> emailTypeArrayAdapter = new ArrayAdapter<>(this,
-                            android.R.layout.simple_spinner_item, EmailType.values());
-                    emailType.setAdapter(emailTypeArrayAdapter);
-                    emailType.setSelection(email.getType().ordinal());
+                        EditText emailId = (EditText) row.findViewById(R.id.editText_email);
+                        emailId.setText(email.getEmail());
 
-                    EditText emailId = (EditText) row.findViewById(R.id.editText_email);
-                    emailId.setText(email.getEmail());
+                        emailTable.addView(row);
+                    }
+                } else {
+                    Email email = (Email) emails.toArray()[0];
+                    View emailRow = emailTable.getChildAt(1);
 
-                    emailTable.addView(row);
+                    populateEmail(email, emailRow);
                 }
-            } else {
-                Email email = (Email) emails.toArray()[0];
-                View emailRow = emailTable.getChildAt(1);
-
-                populateEmail(email, emailRow);
             }
         }
     }
@@ -476,14 +506,16 @@ public class AddContactActivity extends AppCompatActivity {
         if(!addresses.isEmpty()) {
             TableLayout addressTable = (TableLayout) findViewById(R.id.address_tableLayout);
 
-            Address address = (Address) addresses.toArray()[0];
-            View addressRow = addressTable.getChildAt(1);
+            if(addressTable != null) {
+                Address address = (Address) addresses.toArray()[0];
+                View addressRow = addressTable.getChildAt(1);
 
-            Spinner addressType = (Spinner) addressRow.findViewById(R.id.spinner_address_types);
-            addressType.setSelection(address.getType().ordinal());
+                Spinner addressType = (Spinner) addressRow.findViewById(R.id.spinner_address_types);
+                addressType.setSelection(address.getType().ordinal());
 
-            EditText adressVal = (EditText) addressRow.findViewById(R.id.editText_address);
-            adressVal.setText(address.getAddress());
+                EditText adressVal = (EditText) addressRow.findViewById(R.id.editText_address);
+                adressVal.setText(address.getAddress());
+            }
         }
     }
 

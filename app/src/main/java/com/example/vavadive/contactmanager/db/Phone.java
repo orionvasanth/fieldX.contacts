@@ -4,6 +4,8 @@ import com.example.vavadive.contactmanager.common.PhoneType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.Date;
+
 /**
  * Created by vavadive on 7/9/2016.
  */
@@ -21,6 +23,10 @@ public class Phone {
 
     @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
     private Contact contact;
+
+    public Long getId() {
+        return _id;
+    }
 
     public Contact getContact() {
         return contact;
@@ -44,5 +50,30 @@ public class Phone {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    @DatabaseField
+    private Long lastModified;
+
+
+    public Long getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Long lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof Phone) {
+            Phone phone = (Phone) o;
+
+            if((getId().equals(phone.getId())) &&
+                    getLastModified().equals(phone.getLastModified())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
