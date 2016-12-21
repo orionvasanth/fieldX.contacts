@@ -95,6 +95,28 @@ public class Contact {
         this.company = company;
     }
 
+    @DatabaseField
+    private String nickname;
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    @DatabaseField
+    private String website;
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
     @ForeignCollectionField
     private Collection<Address> addresses;
 
@@ -127,6 +149,17 @@ public class Contact {
     public void setEmails(Collection<Email> emails) {
         this.emails = emails;
     }
+
+    public Collection<IM> getIms() {
+        return ims;
+    }
+
+    public void setIms(Collection<IM> ims) {
+        this.ims = ims;
+    }
+
+    @ForeignCollectionField
+    private Collection<IM> ims;
 
     @DatabaseField
     private Long lastModified;

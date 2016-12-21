@@ -4,31 +4,37 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TableLayout;
+import android.widget.Toast;
 
-import com.example.vavadive.contactmanager.common.AddFieldMenuItem;
 import com.example.vavadive.contactmanager.common.AddressType;
 import com.example.vavadive.contactmanager.common.ContactType;
 import com.example.vavadive.contactmanager.common.EmailType;
+import com.example.vavadive.contactmanager.common.IMType;
 import com.example.vavadive.contactmanager.common.Mode;
 import com.example.vavadive.contactmanager.common.PhoneType;
 import com.example.vavadive.contactmanager.db.Address;
 import com.example.vavadive.contactmanager.db.Contact;
 import com.example.vavadive.contactmanager.db.DatabaseHelper;
 import com.example.vavadive.contactmanager.db.Email;
+import com.example.vavadive.contactmanager.db.IM;
 import com.example.vavadive.contactmanager.db.Phone;
+import com.example.vavadive.contactmanager.util.StringUtil;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -39,6 +45,7 @@ import java.util.Date;
  */
 public class AddContactActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
+
     private Mode mode;
     private Long CONTACT_ID = 0L;
 
@@ -103,6 +110,27 @@ public class AddContactActivity extends AppCompatActivity {
         addListener();
     }
 
+    private void saveAddress(Contact contact) {
+        Spinner addressType = (Spinner) findViewById(R.id.spinner_address_types);
+        EditText address = (EditText) findViewById(R.id.editText_address);
+        if(addressType != null && address != null) {
+            if (!StringUtil.isNull(address.getText().toString())) {
+                try {
+                    databaseHelper.getAddressDao().delete(contact.getAddresses());
+
+                    Address lAddress = new Address();
+                    lAddress.setAddress(address.getText().toString());
+                    lAddress.setType((AddressType) addressType.getSelectedItem());
+                    lAddress.setContact(contact);
+
+                    databaseHelper.getAddressDao().createIfNotExists(lAddress);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     private void savePhones(Contact contact) {
 
         Collection<Phone> phones = contact.getPhones();
@@ -132,6 +160,45 @@ public class AddContactActivity extends AppCompatActivity {
                         databaseHelper.getPhoneDao().createIfNotExists(lPhone);
                     } catch (SQLException e) {
                         e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    private void saveIMs(Contact contact) {
+        Collection<IM> ims = contact.getIms();
+
+        try {
+            databaseHelper.getImDao().delete(ims);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        TableLayout imTable = (TableLayout) findViewById(R.id.im_tableLayout);
+        if(imTable != null && imTable.getChildCount() != 0) {
+            int count = imTable.getChildCount();
+
+            for(int i = 1; i < count; i++) {
+                View imRow = imTable.getChildAt(i);
+                Spinner imType = (Spinner) imRow.findViewById(R.id.spinner_im_types);
+                EditText imText = (EditText) imRow.findViewById(R.id.im);
+
+                if(imType != null && imText != null) {
+                    String id = imText.getText().toString();
+                    if(!StringUtil.isNull(id)) {
+                        IM im = new IM();
+
+                        im.setIm(id);
+                        im.setType((IMType) imType.getSelectedItem());
+                        im.setLastModified(new Date().getTime());
+                        im.setContact(contact);
+
+                        try {
+                            databaseHelper.getImDao().createIfNotExists(im);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -172,16 +239,53 @@ public class AddContactActivity extends AppCompatActivity {
     }
 
     private void save(View view) {
-        EditText firstName = (EditText) findViewById(R.id.editText_firstName);
-        EditText middleName = (EditText) findViewById(R.id.editText_middleName);
-        EditText lastName = (EditText) findViewById(R.id.editText_lastName);
-        Spinner contactType = (Spinner)findViewById(R.id.spinner_contact_types);
-
         Contact lContact = new Contact();
-        lContact.setFirstName(firstName.getText().toString());
-        lContact.setMiddleName(middleName.getText().toString());
-        lContact.setLastName(lastName.getText().toString());
-        lContact.setContactType((ContactType) contactType.getSelectedItem());
+
+        EditText firstName = (EditText) findViewById(R.id.editText_firstName);
+        if(firstName != null) {
+            lContact.setFirstName(firstName.getText().toString());
+        }
+
+        EditText middleName = (EditText) findViewById(R.id.editText_middleName);
+        if(middleName != null) {
+            lContact.setMiddleName(middleName.getText().toString());
+        }
+
+        EditText lastName = (EditText) findViewById(R.id.editText_lastName);
+        if(lastName != null) {
+            lContact.setLastName(lastName.getText().toString());
+        }
+
+        Spinner contactType = (Spinner)findViewById(R.id.spinner_contact_types);
+        if(contactType != null) {
+            lContact.setContactType((ContactType) contactType.getSelectedItem());
+        }
+
+        EditText company = (EditText) findViewById(R.id.company);
+        if(company != null) {
+            lContact.setCompany(company.getText().toString());
+        }
+
+        EditText job = (EditText) findViewById(R.id.job);
+        if(job != null) {
+            lContact.setJobTitle(job.getText().toString());
+        }
+
+        EditText nickname = (EditText) findViewById(R.id.nickname);
+        if(nickname != null) {
+            lContact.setNickname(nickname.getText().toString());
+        }
+
+        EditText notes = (EditText) findViewById(R.id.notes);
+        if(notes != null) {
+            lContact.setNotes(notes.getText().toString());
+        }
+
+        EditText website = (EditText) findViewById(R.id.website);
+        if(website != null) {
+            lContact.setWebsite(website.getText().toString());
+        }
+
         lContact.setLastModified(new Date().getTime());
 
         if (validateCreation()) {
@@ -190,23 +294,16 @@ public class AddContactActivity extends AppCompatActivity {
 
                 savePhones(lContact);
                 saveEmails(lContact);
+                saveIMs(lContact);
+                saveAddress(lContact);
 
-                Spinner addressType = (Spinner) findViewById(R.id.spinner_address_types);
-                Address lAddress = new Address();
-                EditText address = (EditText) findViewById(R.id.editText_address);
-                if (addressType.isDirty() || address.isDirty()) {
-                    databaseHelper.getAddressDao().delete(lContact.getAddresses());
-
-                    lAddress.setAddress(address.getText().toString());
-                    lAddress.setType((AddressType) addressType.getSelectedItem());
-                    lAddress.setContact(lContact);
-
-                    databaseHelper.getAddressDao().createIfNotExists(lAddress);
-                }
                 setResult(RESULT_OK);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        } else {
+            Toast.makeText(this, getResources().getString(R.string.cancelled),
+                    Toast.LENGTH_SHORT).show();
         }
 
         finish();
@@ -219,54 +316,42 @@ public class AddContactActivity extends AppCompatActivity {
     }
 
     public void addListener() {
-        /*Button add_button = (Button) findViewById(R.id.add_button);
-        add_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                save(view);
-            }
-        });
-
-        Button home_button = (Button) findViewById(R.id.cancel_button);
-        home_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setResult(RESULT_CANCELED);
-                finish();
-            }
-        });*/
-
         final Button add_field_button = (Button) findViewById(R.id.add_field);
 
         if(add_field_button != null) {
             add_field_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    PopupMenu add_field_popup = new PopupMenu(AddContactActivity.this,
-                            add_field_button);
-                    Menu add_field_popup_menu = add_field_popup.getMenu();
+                    LayoutInflater inflater =
+                            (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-                    AddFieldMenuItem[] values = AddFieldMenuItem.values();
-                    for (AddFieldMenuItem value : values) {
-                        add_field_popup_menu.add(value.getDisplayedName());
-                    }
+                    View popup = inflater.inflate(R.layout.add_another_field_popup, null);
 
-                    add_field_popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    final PopupWindow add_another_field_popup = new PopupWindow(
+                            popup,
+                            LayoutParams.WRAP_CONTENT,
+                            LayoutParams.WRAP_CONTENT
+                    );
+
+                    Button cancel_button = (Button) popup.findViewById(R.id.cancel_button);
+                    cancel_button.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            switch (AddFieldMenuItem.valueOf(item.getTitle().toString())) {
-                                case Phone:
-                                    addPhone();
-                                    break;
-                                case Email:
-                                    addEmail();
-                                    break;
-                            }
-                            return false;
+                        public void onClick(View v) {
+                            add_another_field_popup.dismiss();
                         }
                     });
 
-                    add_field_popup.show();
+                    Button ok_button = (Button) popup.findViewById(R.id.ok_button);
+                    ok_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            addSelectedFields(v);
+                            add_another_field_popup.dismiss();
+                        }
+                    });
+
+                    add_another_field_popup.showAtLocation(findViewById(R.id.add_contact),
+                            Gravity.CENTER, 0, 0);
                 }
             });
         }
@@ -337,6 +422,111 @@ public class AddContactActivity extends AppCompatActivity {
         }
     }
 
+    private void addSelectedFields(View view) {
+        View row = (View) view.getParent();
+        ViewGroup container = ((ViewGroup)row.getParent());
+
+        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        CheckBox organization_cb = (CheckBox) container.findViewById(R.id.organization_cb);
+        if(organization_cb.isChecked()) {
+            TableLayout organizationTable =
+                    (TableLayout) findViewById(R.id.organization_tableLayout);
+
+            if(organizationTable.getChildCount() == 0) {
+                row = inflater.inflate(R.layout.organization_table_header, organizationTable, false);
+                organizationTable.addView(row);
+
+                row = inflater.inflate(R.layout.organization_table_company_row, organizationTable, false);
+                organizationTable.addView(row);
+
+                row = inflater.inflate(R.layout.organization_table_job_row, organizationTable, false);
+                organizationTable.addView(row);
+            }
+        }
+
+        CheckBox im_cb = (CheckBox) container.findViewById(R.id.im_cb);
+        if(im_cb.isChecked()) {
+            TableLayout imTable =
+                    (TableLayout) findViewById(R.id.im_tableLayout);
+
+            if(imTable.getChildCount() == 0) {
+                row = inflater.inflate(R.layout.im_table_header, imTable, false);
+
+                ImageView add_im = (ImageView) row.findViewById(R.id.add_im);
+                if(add_im != null) {
+                    add_im.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            addIM();
+                        }
+                    });
+                }
+                imTable.addView(row);
+
+                row = inflater.inflate(R.layout.im_table_row, imTable, false);
+
+                Spinner imType = (Spinner) row.findViewById(R.id.spinner_im_types);
+                ArrayAdapter<IMType> imTypeArrayAdapter = new ArrayAdapter<>(this,
+                        android.R.layout.simple_spinner_item, IMType.values());
+                imTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                imType.setAdapter(imTypeArrayAdapter);
+
+                ImageView remove_im = (ImageView) row.findViewById(R.id.remove_im);
+                remove_im.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        removeField(view);
+                    }
+                });
+
+                imTable.addView(row);
+            }
+        }
+
+        CheckBox notes_cb = (CheckBox) container.findViewById(R.id.notes_cb);
+        if(notes_cb.isChecked()) {
+            TableLayout notesTable =
+                    (TableLayout) findViewById(R.id.notes_tableLayout);
+
+            if(notesTable.getChildCount() == 0) {
+                row = inflater.inflate(R.layout.notes_table_header, notesTable, false);
+                notesTable.addView(row);
+
+                row = inflater.inflate(R.layout.notes_table_row, notesTable, false);
+                notesTable.addView(row);
+            }
+        }
+
+        CheckBox nickname_cb = (CheckBox) container.findViewById(R.id.nickname_cb);
+        if(nickname_cb.isChecked()) {
+            TableLayout nicknameTable =
+                    (TableLayout) findViewById(R.id.nickname_tableLayout);
+
+            if(nicknameTable.getChildCount() == 0) {
+                row = inflater.inflate(R.layout.nickname_table_header, nicknameTable, false);
+                nicknameTable.addView(row);
+
+                row = inflater.inflate(R.layout.nickname_table_row, nicknameTable, false);
+                nicknameTable.addView(row);
+            }
+        }
+
+        CheckBox website_cb = (CheckBox) container.findViewById(R.id.website_cb);
+        if(website_cb.isChecked()) {
+            TableLayout websiteTable =
+                    (TableLayout) findViewById(R.id.website_tableLayout);
+
+            if(websiteTable.getChildCount() == 0) {
+                row = inflater.inflate(R.layout.website_table_header, websiteTable, false);
+                websiteTable.addView(row);
+
+                row = inflater.inflate(R.layout.website_table_row, websiteTable, false);
+                websiteTable.addView(row);
+            }
+        }
+    }
+
     private void addEmail() {
         LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -359,6 +549,31 @@ public class AddContactActivity extends AppCompatActivity {
             });
 
             emailTable.addView(row);
+        }
+    }
+
+    private void addIM() {
+        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        TableLayout imTable = (TableLayout) findViewById(R.id.im_tableLayout);
+        if(imTable != null) {
+            View row = inflater.inflate(R.layout.im_table_row, imTable, false);
+
+            Spinner imType = (Spinner) row.findViewById(R.id.spinner_im_types);
+            ArrayAdapter<IMType> imTypeArrayAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_item, IMType.values());
+            imTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            imType.setAdapter(imTypeArrayAdapter);
+
+            ImageView remove_im = (ImageView) row.findViewById(R.id.remove_im);
+            remove_im.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    removeField(view);
+                }
+            });
+
+            imTable.addView(row);
         }
     }
 

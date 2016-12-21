@@ -23,7 +23,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:baselineAligned="false"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:id="@+id/add_contact">
 
             <LinearLayout
                 android:id="@+id/name_linearLayout"
@@ -135,6 +136,21 @@
                             android:layout_gravity="center"
                             android:layout_weight="1" />
                     </TableRow>
+                </TableLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/organization_linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false">
+
+                <TableLayout
+                    android:id="@+id/organization_tableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
                 </TableLayout>
             </LinearLayout>
 
@@ -261,6 +277,21 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/im_linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false">
+
+                <TableLayout
+                    android:id="@+id/im_tableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                </TableLayout>
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/address_linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -310,26 +341,55 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/control_linearLayout"
+                android:id="@+id/notes_linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false">
+
+                <TableLayout
+                    android:id="@+id/notes_tableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                </TableLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/nickname_linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false">
+
+                <TableLayout
+                    android:id="@+id/nickname_tableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                </TableLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/website_linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false">
+
+                <TableLayout
+                    android:id="@+id/website_tableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                </TableLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/add_another_field_linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp">
-
-                <!--<Button
-                    android:id="@+id/cancel_button"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/cancel_button" />
-
-                <Button
-                    android:id="@+id/add_button"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/add_button" />-->
 
                 <Button
                     android:id="@+id/add_field"

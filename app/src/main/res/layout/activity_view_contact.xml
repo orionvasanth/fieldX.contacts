@@ -140,6 +140,21 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/organization_linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false">
+
+                <TableLayout
+                    android:id="@+id/organization_tableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                </TableLayout>
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/phone_linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -164,6 +179,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
+                </TableLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/im_linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false">
+
+                <TableLayout
+                    android:id="@+id/im_tableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
                 </TableLayout>
             </LinearLayout>
 
@@ -216,36 +246,50 @@
                 </TableLayout>
             </LinearLayout>
 
-            <!--<LinearLayout
-                android:id="@+id/control_linearLayout"
+            <LinearLayout
+                android:id="@+id/notes_linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp">
+                android:baselineAligned="false">
 
-                &lt;!&ndash;<Button
-                    android:id="@+id/cancel_button"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/cancel_button" />
-
-                <Button
-                    android:id="@+id/add_button"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/add_button" />&ndash;&gt;
-
-                <Button
-                    android:id="@+id/add_field"
+                <TableLayout
+                    android:id="@+id/notes_tableLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/add_field"
-                    android:layout_gravity="center"
-                    android:textAllCaps="false"/>
-            </LinearLayout>-->
+                    android:layout_weight="1">
+
+                </TableLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/nickname_linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false">
+
+                <TableLayout
+                    android:id="@+id/nickname_tableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                </TableLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/website_linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false">
+
+                <TableLayout
+                    android:id="@+id/website_tableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                </TableLayout>
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

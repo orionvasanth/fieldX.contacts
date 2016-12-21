@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:id="@+id/add_another_field_popup"
+    android:orientation="horizontal"
+    android:background="?attr/colorPrimary">
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="fill_horizontal"
+        android:layout_marginTop="10dp">
+
+        <TextView android:text="@string/add_field"
+            android:textAllCaps="false"
+            android:layout_gravity="fill_horizontal|center"
+            android:layout_weight="1"
+            android:background="@color/material_deep_teal_200"
+            android:layout_marginLeft="15dp"/>
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="fill_horizontal"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="@string/organization"
+            android:layout_weight="1"
+            android:layout_gravity="center"/>
+
+        <CheckBox
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:id="@+id/organization_cb"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="fill_horizontal"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="@string/im"
+            android:layout_weight="1"
+            android:layout_gravity="center"/>
+
+        <CheckBox
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:id="@+id/im_cb"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="fill_horizontal"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="@string/notes"
+            android:layout_weight="1"
+            android:layout_gravity="center"/>
+
+        <CheckBox
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:id="@+id/notes_cb"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="fill_horizontal"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="@string/nickname"
+            android:layout_weight="1"
+            android:layout_gravity="center"/>
+
+        <CheckBox
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:id="@+id/nickname_cb"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="fill_horizontal"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="@string/website"
+            android:layout_weight="1"
+            android:layout_gravity="center"/>
+
+        <CheckBox
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:id="@+id/website_cb"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="fill_horizontal"
+        android:layout_marginTop="15dp">
+
+        <Button
+            android:text="@string/cancel_button"
+            android:id="@+id/cancel_button"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:textAllCaps="false"
+            style="?android:attr/buttonBarButtonStyle"/>
+
+        <Button
+            android:text="@string/ok"
+            android:id="@+id/ok_button"
+            android:layout_weight="5"
+            android:layout_gravity="center"
+            style="?android:attr/buttonBarButtonStyle"/>
+    </TableRow>
+
+</TableLayout>

@@ -6,6 +6,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,8 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 
@@ -22,13 +26,16 @@ import com.example.vavadive.contactmanager.common.AddFieldMenuItem;
 import com.example.vavadive.contactmanager.common.AddressType;
 import com.example.vavadive.contactmanager.common.ContactType;
 import com.example.vavadive.contactmanager.common.EmailType;
+import com.example.vavadive.contactmanager.common.IMType;
 import com.example.vavadive.contactmanager.common.Mode;
 import com.example.vavadive.contactmanager.common.PhoneType;
 import com.example.vavadive.contactmanager.db.Address;
 import com.example.vavadive.contactmanager.db.Contact;
 import com.example.vavadive.contactmanager.db.DatabaseHelper;
 import com.example.vavadive.contactmanager.db.Email;
+import com.example.vavadive.contactmanager.db.IM;
 import com.example.vavadive.contactmanager.db.Phone;
+import com.example.vavadive.contactmanager.util.StringUtil;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -172,6 +179,66 @@ public class EditContactActivity extends AppCompatActivity {
         }
     }
 
+    private void saveIMs(Contact contact) {
+        Collection<IM> ims = contact.getIms();
+
+        try {
+            databaseHelper.getImDao().delete(ims);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        TableLayout imTable = (TableLayout) findViewById(R.id.im_tableLayout);
+        if(imTable != null && imTable.getChildCount() != 0) {
+            int count = imTable.getChildCount();
+
+            for(int i = 1; i < count; i++) {
+                View imRow = imTable.getChildAt(i);
+                Spinner imType = (Spinner) imRow.findViewById(R.id.spinner_im_types);
+                EditText imText = (EditText) imRow.findViewById(R.id.im);
+
+                if(imType != null && imText != null) {
+                    String id = imText.getText().toString();
+                    if(!StringUtil.isNull(id)) {
+                        IM im = new IM();
+
+                        im.setIm(id);
+                        im.setType((IMType) imType.getSelectedItem());
+                        im.setLastModified(new Date().getTime());
+                        im.setContact(contact);
+
+                        try {
+                            databaseHelper.getImDao().createIfNotExists(im);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void saveAddress(Contact contact) {
+        Spinner addressType = (Spinner) findViewById(R.id.spinner_address_types);
+        EditText address = (EditText) findViewById(R.id.editText_address);
+        if(addressType != null && address != null) {
+            if (!StringUtil.isNull(address.getText().toString())) {
+                try {
+                    databaseHelper.getAddressDao().delete(contact.getAddresses());
+
+                    Address lAddress = new Address();
+                    lAddress.setAddress(address.getText().toString());
+                    lAddress.setType((AddressType) addressType.getSelectedItem());
+                    lAddress.setContact(contact);
+
+                    databaseHelper.getAddressDao().createIfNotExists(lAddress);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     private void save(View view) {
         if(displayedContact != null) {
             EditText firstNameView = (EditText) findViewById(R.id.editText_firstName);
@@ -200,6 +267,31 @@ public class EditContactActivity extends AppCompatActivity {
                 displayedContact.setContactType((ContactType) contactType.getSelectedItem());
             }
 
+            EditText company = (EditText) findViewById(R.id.company);
+            if(company != null) {
+                displayedContact.setCompany(company.getText().toString());
+            }
+
+            EditText job = (EditText) findViewById(R.id.job);
+            if(job != null) {
+                displayedContact.setJobTitle(job.getText().toString());
+            }
+
+            EditText nickname = (EditText) findViewById(R.id.nickname);
+            if(nickname != null) {
+                displayedContact.setNickname(nickname.getText().toString());
+            }
+
+            EditText notes = (EditText) findViewById(R.id.notes);
+            if(notes != null) {
+                displayedContact.setNotes(notes.getText().toString());
+            }
+
+            EditText website = (EditText) findViewById(R.id.website);
+            if(website != null) {
+                displayedContact.setWebsite(website.getText().toString());
+            }
+
             try {
                 if(displayedContact.getFirstName().length() == 0) {
                     setResult(RESULT_CANCELED);
@@ -210,6 +302,9 @@ public class EditContactActivity extends AppCompatActivity {
 
                     savePhones(displayedContact);
                     saveEmails(displayedContact);
+                    saveIMs(displayedContact);
+                    saveAddress(displayedContact);
+
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -226,31 +321,36 @@ public class EditContactActivity extends AppCompatActivity {
             add_field_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    PopupMenu add_field_popup = new PopupMenu(EditContactActivity.this,
-                            add_field_button);
-                    Menu add_field_popup_menu = add_field_popup.getMenu();
+                    LayoutInflater inflater =
+                            (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-                    AddFieldMenuItem[] values = AddFieldMenuItem.values();
-                    for (AddFieldMenuItem value : values) {
-                        add_field_popup_menu.add(value.getDisplayedName());
-                    }
+                    View popup = inflater.inflate(R.layout.add_another_field_popup, null);
 
-                    add_field_popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    final PopupWindow add_another_field_popup = new PopupWindow(
+                            popup,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+
+                    Button cancel_button = (Button) popup.findViewById(R.id.cancel_button);
+                    cancel_button.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            switch (AddFieldMenuItem.valueOf(item.getTitle().toString())) {
-                                case Phone:
-                                    addPhone();
-                                    break;
-                                case Email:
-                                    addEmail();
-                                    break;
-                            }
-                            return false;
+                        public void onClick(View v) {
+                            add_another_field_popup.dismiss();
                         }
                     });
 
-                    add_field_popup.show();
+                    Button ok_button = (Button) popup.findViewById(R.id.ok_button);
+                    ok_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            addSelectedFields(v);
+                            add_another_field_popup.dismiss();
+                        }
+                    });
+
+                    add_another_field_popup.showAtLocation(findViewById(R.id.add_contact),
+                            Gravity.CENTER, 0, 0);
                 }
             });
         }
@@ -346,6 +446,31 @@ public class EditContactActivity extends AppCompatActivity {
         }
     }
 
+    private void addIM() {
+        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        TableLayout imTable = (TableLayout) findViewById(R.id.im_tableLayout);
+        if(imTable != null) {
+            View row = inflater.inflate(R.layout.im_table_row, imTable, false);
+
+            Spinner imType = (Spinner) row.findViewById(R.id.spinner_im_types);
+            ArrayAdapter<IMType> imTypeArrayAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_item, IMType.values());
+            imTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            imType.setAdapter(imTypeArrayAdapter);
+
+            ImageView remove_im = (ImageView) row.findViewById(R.id.remove_im);
+            remove_im.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    removeField(view);
+                }
+            });
+
+            imTable.addView(row);
+        }
+    }
+
     private void removeField(View view) {
         View row = (View) view.getParent();
         ViewGroup container = ((ViewGroup)row.getParent());
@@ -389,6 +514,7 @@ public class EditContactActivity extends AppCompatActivity {
                 populatePhones(displayedContact.getPhones());
                 populateEmails(displayedContact.getEmails());
                 populateAddresses(displayedContact.getAddresses());
+                populateIMs(displayedContact.getIms());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -438,6 +564,14 @@ public class EditContactActivity extends AppCompatActivity {
                         EditText phoneNo = (EditText) row.findViewById(R.id.editText_phone);
                         phoneNo.setText(phone.getPhone());
 
+                        ImageView remove_phone = (ImageView) row.findViewById(R.id.remove_phone);
+                        remove_phone.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                removeField(view);
+                            }
+                        });
+
                         phoneTable.addView(row);
                     }
                 } else {
@@ -473,6 +607,14 @@ public class EditContactActivity extends AppCompatActivity {
 
                         EditText emailId = (EditText) row.findViewById(R.id.editText_email);
                         emailId.setText(email.getEmail());
+
+                        ImageView remove_email = (ImageView) row.findViewById(R.id.remove_email);
+                        remove_email.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                removeField(view);
+                            }
+                        });
 
                         emailTable.addView(row);
                     }
@@ -515,5 +657,219 @@ public class EditContactActivity extends AppCompatActivity {
 
         Spinner contactType = (Spinner)findViewById(R.id.spinner_contact_types);
         contactType.setSelection(contact.getContactType().ordinal());
+
+        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        if(!StringUtil.isNull(contact.getCompany())) {
+            TableLayout organizationTable =
+                    (TableLayout) findViewById(R.id.organization_tableLayout);
+
+            View row = inflater.inflate(R.layout.organization_table_header, organizationTable, false);
+            organizationTable.addView(row);
+
+            row = inflater.inflate(R.layout.organization_table_company_row, organizationTable, false);
+            EditText company = (EditText) row.findViewById(R.id.company);
+            if(company != null) {
+                company.setText(contact.getCompany());
+            }
+            organizationTable.addView(row);
+
+            if(!StringUtil.isNull(contact.getJobTitle())) {
+                row = inflater.inflate(R.layout.organization_table_job_row, organizationTable, false);
+                EditText job = (EditText) row.findViewById(R.id.job);
+                if(job != null) {
+                    job.setText(contact.getJobTitle());
+                }
+                organizationTable.addView(row);
+            }
+        }
+
+        if(!StringUtil.isNull(contact.getNotes())) {
+            TableLayout notesTable =
+                    (TableLayout) findViewById(R.id.notes_tableLayout);
+
+            View row = inflater.inflate(R.layout.notes_table_header, notesTable, false);
+            notesTable.addView(row);
+
+            row = inflater.inflate(R.layout.notes_table_row, notesTable, false);
+            EditText notes = (EditText) row.findViewById(R.id.notes);
+            if(notes != null) {
+                notes.setText(contact.getNotes());
+            }
+            notesTable.addView(row);
+        }
+
+        if(!StringUtil.isNull(contact.getNickname())) {
+            TableLayout nicknameTable =
+                    (TableLayout) findViewById(R.id.nickname_tableLayout);
+
+            View row = inflater.inflate(R.layout.nickname_table_header, nicknameTable, false);
+            nicknameTable.addView(row);
+
+            row = inflater.inflate(R.layout.nickname_table_row, nicknameTable, false);
+            EditText nickname = (EditText) row.findViewById(R.id.nickname);
+            if(nickname != null) {
+                nickname.setText(contact.getNotes());
+            }
+            nicknameTable.addView(row);
+        }
+
+        if(!StringUtil.isNull(contact.getWebsite())) {
+            TableLayout websiteTable =
+                    (TableLayout) findViewById(R.id.website_tableLayout);
+
+            View row = inflater.inflate(R.layout.website_table_header, websiteTable, false);
+            websiteTable.addView(row);
+
+            row = inflater.inflate(R.layout.website_table_row, websiteTable, false);
+            EditText website = (EditText) row.findViewById(R.id.website);
+            if(website != null) {
+                website.setText(contact.getWebsite());
+            }
+            websiteTable.addView(row);
+        }
+    }
+
+    private void populateIM(IM im, View imRow) {
+        Spinner imType = (Spinner) imRow.findViewById(R.id.spinner_im_types);
+        if(imType != null) {
+            ArrayAdapter<IMType> emailTypeArrayAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_item, IMType.values());
+            imType.setAdapter(emailTypeArrayAdapter);
+            imType.setSelection(im.getType().ordinal());
+            imType.setEnabled(false);
+        }
+
+        EditText imId = (EditText) imRow.findViewById(R.id.im);
+        if(imId != null) {
+            imId.setText(im.getIm());
+            imId.setInputType(InputType.TYPE_NULL);
+        }
+
+        ImageView remove_im = (ImageView) imRow.findViewById(R.id.remove_im);
+        if(remove_im != null) {
+            remove_im.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    removeField(view);
+                }
+            });
+        }
+    }
+
+    private void populateIMs(Collection<IM> ims) {
+        if(!ims.isEmpty()) {
+            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            TableLayout imTable = (TableLayout) findViewById((R.id.im_tableLayout));
+            View row = inflater.inflate(R.layout.im_table_header, imTable, false);
+            ImageView add_im = (ImageView) row.findViewById(R.id.add_im);
+            if(add_im != null) {
+                add_im.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        addIM();
+                    }
+                });
+            }
+            imTable.addView(row);
+
+            Object[] imObjects = ims.toArray();
+            for(Object object : imObjects) {
+                row = inflater.inflate(R.layout.im_table_row, imTable, false);
+
+                IM im = (IM) object;
+                populateIM(im, row);
+
+                imTable.addView(row);
+            }
+        }
+    }
+
+    private void addSelectedFields(View view) {
+        View row = (View) view.getParent();
+        ViewGroup container = ((ViewGroup)row.getParent());
+
+        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        CheckBox organization_cb = (CheckBox) container.findViewById(R.id.organization_cb);
+        if(organization_cb.isChecked()) {
+            TableLayout organizationTable =
+                    (TableLayout) findViewById(R.id.organization_tableLayout);
+
+            if(organizationTable.getChildCount() == 0) {
+                row = inflater.inflate(R.layout.organization_table_header, organizationTable, false);
+                organizationTable.addView(row);
+
+                row = inflater.inflate(R.layout.organization_table_company_row, organizationTable, false);
+                organizationTable.addView(row);
+
+                row = inflater.inflate(R.layout.organization_table_job_row, organizationTable, false);
+                organizationTable.addView(row);
+            }
+        }
+
+        CheckBox im_cb = (CheckBox) container.findViewById(R.id.im_cb);
+        if(im_cb.isChecked()) {
+            TableLayout imTable =
+                    (TableLayout) findViewById(R.id.im_tableLayout);
+
+            if(imTable.getChildCount() == 0) {
+                row = inflater.inflate(R.layout.im_table_header, imTable, false);
+                ImageView add_im = (ImageView) row.findViewById(R.id.add_im);
+                if(add_im != null) {
+                    add_im.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            addIM();
+                        }
+                    });
+                }
+                imTable.addView(row);
+
+                addIM();
+            }
+        }
+
+        CheckBox notes_cb = (CheckBox) container.findViewById(R.id.notes_cb);
+        if(notes_cb.isChecked()) {
+            TableLayout notesTable =
+                    (TableLayout) findViewById(R.id.notes_tableLayout);
+
+            if(notesTable.getChildCount() == 0) {
+                row = inflater.inflate(R.layout.notes_table_header, notesTable, false);
+                notesTable.addView(row);
+
+                row = inflater.inflate(R.layout.notes_table_row, notesTable, false);
+                notesTable.addView(row);
+            }
+        }
+
+        CheckBox nickname_cb = (CheckBox) container.findViewById(R.id.nickname_cb);
+        if(nickname_cb.isChecked()) {
+            TableLayout nicknameTable =
+                    (TableLayout) findViewById(R.id.nickname_tableLayout);
+
+            if(nicknameTable.getChildCount() == 0) {
+                row = inflater.inflate(R.layout.nickname_table_header, nicknameTable, false);
+                nicknameTable.addView(row);
+
+                row = inflater.inflate(R.layout.nickname_table_row, nicknameTable, false);
+                nicknameTable.addView(row);
+            }
+        }
+
+        CheckBox website_cb = (CheckBox) container.findViewById(R.id.website_cb);
+        if(website_cb.isChecked()) {
+            TableLayout websiteTable =
+                    (TableLayout) findViewById(R.id.website_tableLayout);
+
+            if(websiteTable.getChildCount() == 0) {
+                row = inflater.inflate(R.layout.website_table_header, websiteTable, false);
+                websiteTable.addView(row);
+
+                row = inflater.inflate(R.layout.website_table_row, websiteTable, false);
+                websiteTable.addView(row);
+            }
+        }
     }
 }

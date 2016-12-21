@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        displayToast(resultCode);
+        //displayToast(resultCode);
     }
 
     private void refresh() {

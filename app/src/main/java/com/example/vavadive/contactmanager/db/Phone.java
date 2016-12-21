@@ -4,8 +4,6 @@ import com.example.vavadive.contactmanager.common.PhoneType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.util.Date;
-
 /**
  * Created by vavadive on 7/9/2016.
  */

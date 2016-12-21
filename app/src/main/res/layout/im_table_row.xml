@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:layout_marginBottom="20dp"
+    android:gravity="fill_horizontal">
+
+    <Spinner
+        android:id="@+id/spinner_im_types"
+        android:layout_width="75dp"
+        android:dropDownWidth="wrap_content"
+        android:layout_gravity="right" />
+
+    <EditText
+        android:id="@+id/im"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textEmailAddress" />
+
+    <ImageView
+        android:id="@+id/remove_im"
+        android:layout_gravity="right|top"
+        android:src="@drawable/ic_remove_field"/>
+</TableRow>
