@@ -1,20 +1,20 @@
 package com.example.vavadive.contactmanager;
 
-import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -23,6 +23,7 @@ import com.example.vavadive.contactmanager.common.ContactContextMenuItem;
 import com.example.vavadive.contactmanager.common.Mode;
 import com.example.vavadive.contactmanager.db.Contact;
 import com.example.vavadive.contactmanager.db.DatabaseHelper;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.sql.SQLException;
 
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView contacts_list;
     private ContactAdapter contactAdapter;
     private DatabaseHelper databaseHelper;
+    private EditText search_view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,23 +55,49 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        SearchManager searchManager =
+        /*SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =
                 (SearchView) menu.findItem(R.id.search).getActionView();
         searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName()));
+                searchManager.getSearchableInfo(getComponentName()));*/
 
-        /*final Intent addContact = new Intent(this, AddContactActivity.class);
-        MenuItem search = menu.findItem(R.id.add_contact);
-        search.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        View v = (View) menu.findItem(R.id.search).getActionView();
+        search_view = (EditText) v.findViewById(R.id.search_text);
+        search_view.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                startActivityForResult(addContact, REQUEST_ADD);
-                return true;
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
             }
-        });*/
-        return true;
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(s.length() > 0) {
+                    try {
+                        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+                        final QueryBuilder<Contact, Long> queryBuilder =
+                                databaseHelper.getContactDao().queryBuilder();
+                        queryBuilder.where().like("firstName", s + "%");
+                        queryBuilder.orderBy("firstName", true);
+                        String raw_query = queryBuilder.prepareStatementString();
+
+                        Cursor contact_cursor = db.rawQuery(raw_query, null);
+                        contactAdapter.changeCursor(contact_cursor);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                } else {contactAdapter.getCursor();
+                    contactAdapter.changeCursor(getCursor());
+                }
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     public void addListener() {
@@ -175,6 +203,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void refresh() {
+        if(search_view != null) {
+            search_view.setText("");
+        }
+
         contactAdapter.changeCursor(getCursor());
     }
 
