@@ -4,9 +4,10 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,16 +19,15 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 
-import com.example.vavadive.contactmanager.common.AddFieldMenuItem;
 import com.example.vavadive.contactmanager.common.AddressType;
 import com.example.vavadive.contactmanager.common.ContactType;
 import com.example.vavadive.contactmanager.common.EmailType;
 import com.example.vavadive.contactmanager.common.IMType;
-import com.example.vavadive.contactmanager.common.Mode;
 import com.example.vavadive.contactmanager.common.PhoneType;
 import com.example.vavadive.contactmanager.db.Address;
 import com.example.vavadive.contactmanager.db.Contact;
@@ -44,10 +44,8 @@ import java.util.Date;
 /**
  * Created by vavadive on 6/22/2016.
  */
-public class EditContactActivity extends AppCompatActivity {
+public class EditContactActivity extends AppCompatActivity implements View.OnClickListener {
     private DatabaseHelper databaseHelper;
-    private Mode mode;
-    private Long CONTACT_ID = 0L;
     private Contact displayedContact = null;
 
     @Override
@@ -99,14 +97,9 @@ public class EditContactActivity extends AppCompatActivity {
 
         databaseHelper = new DatabaseHelper(this);
 
-        mode = Mode.values()[getIntent().getIntExtra("mode", 0)];
-
-        if(mode.equals(Mode.EDIT)) {
-            long id = getIntent().getLongExtra(getResources().getString(R.string.key), 0);
-            if(id != 0) {
-                CONTACT_ID = id;
-                populate(id);
-            }
+        long id = getIntent().getLongExtra(getResources().getString(R.string.key), 0);
+        if(id != 0) {
+            populate(id);
         }
         addListener();
     }
@@ -239,29 +232,8 @@ public class EditContactActivity extends AppCompatActivity {
         }
     }
 
-    private void save(View view) {
+    private void save() {
         if(displayedContact != null) {
-            EditText firstNameView = (EditText) findViewById(R.id.editText_firstName);
-            if(firstNameView != null) {
-                String firstName = firstNameView.getText().toString();
-                if(firstName.length() > 0 && !firstName.equals(displayedContact.getFirstName()))
-                    displayedContact.setFirstName(firstName);
-            }
-
-            EditText middleNameView = (EditText) findViewById(R.id.editText_middleName);
-            if(middleNameView != null) {
-                String middleName = middleNameView.getText().toString();
-                if(middleName.length() > 0 && !middleName.equals(displayedContact.getMiddleName()))
-                    displayedContact.setMiddleName(middleName);
-            }
-
-            EditText lastNameView = (EditText) findViewById(R.id.editText_lastName);
-            if(lastNameView != null) {
-                String lastName = lastNameView.getText().toString();
-                if(lastName.length() > 0 && !lastName.equals(displayedContact.getLastName()))
-                    displayedContact.setLastName(lastName);
-            }
-
             Spinner contactType = (Spinner)findViewById(R.id.spinner_contact_types);
             if(contactType != null) {
                 displayedContact.setContactType((ContactType) contactType.getSelectedItem());
@@ -394,6 +366,197 @@ public class EditContactActivity extends AppCompatActivity {
                 }
             });
         }
+
+        final EditText name = (EditText) findViewById(R.id.editText_name);
+        if(name != null) {
+            name.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    updateName(editable.toString());
+                }
+            });
+        }
+    }
+
+    private void updateName(String fullName) {
+
+        if(!StringUtil.isNull(fullName)) {
+            String[] names = fullName.split(" ");
+            if (names.length < 3) {
+                switch (names.length) {
+                    case 1:
+                        displayedContact.setFirstName(names[0]);
+                        displayedContact.setMiddleName("");
+                        displayedContact.setLastName("");
+                        break;
+
+                    case 2:
+                        displayedContact.setFirstName(names[0]);
+                        displayedContact.setLastName(names[1]);
+                        displayedContact.setMiddleName("");
+
+                        break;
+                }
+            } else if (names.length == 3) {
+                displayedContact.setFirstName(names[0]);
+                displayedContact.setMiddleName(names[1]);
+                displayedContact.setLastName(names[2]);
+            } else if (names.length > 3) {
+                displayedContact.setLastName(names[names.length - 1]);
+                displayedContact.setMiddleName(names[names.length - 2]);
+
+                StringBuilder firstName = new StringBuilder();
+                for(int i = 0; i < names.length - 2; i++) {
+                    firstName.append(names[i] + " ");
+                }
+                displayedContact.setFirstName(firstName.toString().trim());
+            }
+        }
+    }
+
+    private void expandName() {
+        LinearLayout name_linearLayout =
+                (LinearLayout) findViewById(R.id.name_linearLayout);
+        name_linearLayout.removeAllViews();
+
+        LayoutInflater inflater =
+                (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        View name_expanded = inflater.inflate(R.layout.name_expanded,
+                name_linearLayout, false);
+        EditText firstName = (EditText) name_expanded.findViewById(R.id.editText_firstName);
+        EditText middleName = (EditText) name_expanded.findViewById(R.id.editText_middleName);
+        EditText lastName = (EditText) name_expanded.findViewById(R.id.editText_lastName);
+
+        if(firstName == null || middleName == null || lastName == null) {
+            return;
+        }
+
+        firstName.setText(displayedContact.getFirstName());
+        firstName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                displayedContact.setFirstName(editable.toString());
+            }
+        });
+
+        middleName.setText(displayedContact.getMiddleName());
+        middleName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                displayedContact.setMiddleName(editable.toString());
+            }
+        });
+
+        lastName.setText(displayedContact.getLastName());
+        lastName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                displayedContact.setLastName(editable.toString());
+            }
+        });
+
+        name_linearLayout.addView(name_expanded);
+    }
+
+    private void collapseName() {
+        StringBuilder fullName = new StringBuilder();
+        if(!StringUtil.isNull(displayedContact.getFirstName())) {
+            fullName.append(displayedContact.getFirstName() + " ");
+        }
+
+        if(!StringUtil.isNull(displayedContact.getMiddleName())) {
+            fullName.append(displayedContact.getMiddleName() + " ");
+        }
+
+        if(!StringUtil.isNull(displayedContact.getLastName())) {
+            fullName.append(displayedContact.getLastName());
+        }
+
+        LinearLayout name_linearLayout =
+                (LinearLayout) findViewById(R.id.name_linearLayout);
+        name_linearLayout.removeAllViews();
+
+        LayoutInflater inflater =
+                (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        View name_collapsed = inflater.inflate(R.layout.name_collapsed,
+                name_linearLayout, false);
+        EditText name = (EditText) name_collapsed.findViewById(R.id.editText_name);
+        if(name != null) {
+            name.setText(fullName.toString().trim());
+            name.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    updateName(editable.toString());
+                }
+            });
+        }
+
+        name_linearLayout.addView(name_collapsed);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.expand_name:
+                expandName();
+                break;
+
+            case R.id.collapse_name:
+                collapseName();
+                break;
+        }
     }
 
     private void addPhone() {
@@ -497,7 +660,7 @@ public class EditContactActivity extends AppCompatActivity {
         add.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                save(null);
+                save();
 
                 return true;
             }
@@ -646,14 +809,32 @@ public class EditContactActivity extends AppCompatActivity {
     }
 
     private void populateContact(Contact contact) {
-        EditText firstName = (EditText) findViewById(R.id.editText_firstName);
-        firstName.setText(contact.getFirstName());
+        EditText name = (EditText) findViewById(R.id.editText_name);
+        if(name == null) {
+            EditText firstName = (EditText) findViewById(R.id.editText_firstName);
+            firstName.setText(contact.getFirstName());
 
-        EditText middleName = (EditText) findViewById(R.id.editText_middleName);
-        middleName.setText(contact.getMiddleName());
+            EditText middleName = (EditText) findViewById(R.id.editText_middleName);
+            middleName.setText(contact.getMiddleName());
 
-        EditText lastName = (EditText) findViewById(R.id.editText_lastName);
-        lastName.setText(contact.getLastName());
+            EditText lastName = (EditText) findViewById(R.id.editText_lastName);
+            lastName.setText(contact.getLastName());
+        } else {
+            StringBuilder fullName = new StringBuilder();
+            if(!StringUtil.isNull(contact.getFirstName())) {
+                fullName.append(contact.getFirstName() + " ");
+            }
+
+            if(!StringUtil.isNull(contact.getMiddleName())) {
+                fullName.append(contact.getMiddleName() + " ");
+            }
+
+            if(!StringUtil.isNull(contact.getLastName())) {
+                fullName.append(contact.getLastName());
+            }
+
+            name.setText(fullName.toString().trim());
+        }
 
         Spinner contactType = (Spinner)findViewById(R.id.spinner_contact_types);
         contactType.setSelection(contact.getContactType().ordinal());

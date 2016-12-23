@@ -12,9 +12,10 @@
     <string name="save_success">Saved successfully</string>
     <string name="cancelled">Not saved</string>
     <string name="key">key</string>
-    <string name="firstName">First Name:</string>
-    <string name="middleName">Middle Name:</string>
-    <string name="lastName">Last Name:</string>
+    <string name="name">Name</string>
+    <string name="firstName">First name</string>
+    <string name="middleName">Middle name</string>
+    <string name="lastName">Last name</string>
     <string name="contactType">Groups</string>
     <string name="email">Email</string>
     <string name="address">Address</string>

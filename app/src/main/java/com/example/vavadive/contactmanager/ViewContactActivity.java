@@ -78,7 +78,6 @@ public class ViewContactActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 Intent editContact = new Intent(ViewContactActivity.this, EditContactActivity.class);
                 editContact.putExtra(getResources().getString(R.string.key), CONTACT_ID);
-                editContact.putExtra("mode", Mode.EDIT.ordinal());
                 startActivityForResult(editContact, MainActivity.REQUEST_EDIT);
 
                 return true;
@@ -232,17 +231,25 @@ public class ViewContactActivity extends AppCompatActivity {
 
     private void populateContact(Contact contact) {
         if(contact != null) {
-            EditText firstName = (EditText) findViewById(R.id.editText_firstName);
-            firstName.setText(contact.getFirstName());
-            firstName.setInputType(InputType.TYPE_NULL);
+            EditText name = (EditText) findViewById(R.id.editText_name);
 
-            EditText middleName = (EditText) findViewById(R.id.editText_middleName);
-            middleName.setText(contact.getMiddleName());
-            middleName.setInputType(InputType.TYPE_NULL);
+            if(name != null) {
+                StringBuilder fullName = new StringBuilder();
+                if(!StringUtil.isNull(contact.getFirstName())) {
+                    fullName.append(contact.getFirstName() + " ");
+                }
 
-            EditText lastName = (EditText) findViewById(R.id.editText_lastName);
-            lastName.setText(contact.getLastName());
-            lastName.setInputType(InputType.TYPE_NULL);
+                if(!StringUtil.isNull(contact.getMiddleName())) {
+                    fullName.append(contact.getMiddleName() + " ");
+                }
+
+                if(!StringUtil.isNull(contact.getLastName())) {
+                    fullName.append(contact.getLastName());
+                }
+
+                name.setText(fullName.toString().trim());
+                name.setInputType(InputType.TYPE_NULL);
+            }
 
             Spinner contactType = (Spinner) findViewById(R.id.spinner_contact_types);
             ArrayAdapter<ContactType> contactTypeArrayAdapter = new ArrayAdapter<>(this,
