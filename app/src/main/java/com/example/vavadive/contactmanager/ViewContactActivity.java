@@ -9,24 +9,16 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.example.vavadive.contactmanager.common.AddressType;
-import com.example.vavadive.contactmanager.common.ContactType;
-import com.example.vavadive.contactmanager.common.EmailType;
-import com.example.vavadive.contactmanager.common.IMType;
 import com.example.vavadive.contactmanager.common.Mode;
-import com.example.vavadive.contactmanager.common.PhoneType;
 import com.example.vavadive.contactmanager.db.Address;
 import com.example.vavadive.contactmanager.db.Contact;
 import com.example.vavadive.contactmanager.db.DatabaseHelper;
@@ -108,11 +100,51 @@ public class ViewContactActivity extends AppCompatActivity {
                 }
             }
         });
+
+        TableRow row = (TableRow) phoneRow;
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        View divider = inflater.inflate(R.layout.vertical_divider, row, false);
+        row.addView(divider);
+
+        ImageView sms = new ImageView(getApplicationContext());
+        sms.setImageResource(R.drawable.ic_send_sms);
+        sms.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Uri number = Uri.parse("smsto:" + toCall);
+                Intent smsIntent = new Intent(Intent.ACTION_SENDTO, number);
+
+                int permissionCheck = ContextCompat.checkSelfPermission(ViewContactActivity.this,
+                        Manifest.permission.SEND_SMS);
+                if(permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                    startActivity(smsIntent);
+                }
+            }
+        });
+        row.addView(sms);
     }
 
     private void populateEmail(Email email, View emailRow) {
         TextView emailId = (TextView) emailRow.findViewById(R.id.editText_email);
         emailId.setText(email.getEmail());
+
+        TableRow row = (TableRow) emailRow;
+
+        final String id = email.getEmail();
+        ImageView send_email = new ImageView(getApplicationContext());
+        send_email.setImageResource(R.drawable.ic_send_email);
+        send_email.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{id});
+                emailIntent.setType("message/rfc822");
+                startActivity(emailIntent);
+            }
+        });
+        row.addView(send_email);
     }
 
     private void populateIM(IM im, View imRow) {
@@ -133,7 +165,7 @@ public class ViewContactActivity extends AppCompatActivity {
             Object[] imObjects = ims.toArray();
             for(int i = 0; i < imObjects.length; i++) {
                 if(i != 0) {
-                    row = inflater.inflate(R.layout.divider_table_row, imTable, false);
+                    row = inflater.inflate(R.layout.horizontal_divider_table_row, imTable, false);
                     imTable.addView(row);
                 }
 
@@ -162,7 +194,7 @@ public class ViewContactActivity extends AppCompatActivity {
 
             for (int i = 0; i < phones.size(); i++) {
                 if(i != 0) {
-                    row = inflater.inflate(R.layout.divider_table_row, phoneTable, false);
+                    row = inflater.inflate(R.layout.horizontal_divider_table_row, phoneTable, false);
                     phoneTable.addView(row);
                 }
 
@@ -196,7 +228,7 @@ public class ViewContactActivity extends AppCompatActivity {
 
             for (int i = 0; i < emails.size(); i++) {
                 if(i != 0) {
-                    row = inflater.inflate(R.layout.divider_table_row, emailTable, false);
+                    row = inflater.inflate(R.layout.horizontal_divider_table_row, emailTable, false);
                     emailTable.addView(row);
                 }
 
@@ -228,7 +260,7 @@ public class ViewContactActivity extends AppCompatActivity {
             Object[] websiteObjects = websites.toArray();
             for(int i = 0; i < websites.size(); i++) {
                 if(i != 0) {
-                    row = inflater.inflate(R.layout.divider_table_row, websiteTable, false);
+                    row = inflater.inflate(R.layout.horizontal_divider_table_row, websiteTable, false);
                     websiteTable.addView(row);
                 }
 
@@ -260,7 +292,7 @@ public class ViewContactActivity extends AppCompatActivity {
 
             for(int i = 0; i < addresses.size(); i++) {
                 if(i != 0) {
-                    row = inflater.inflate(R.layout.divider_table_row, addressTable, false);
+                    row = inflater.inflate(R.layout.horizontal_divider_table_row, addressTable, false);
                     addressTable.addView(row);
                 }
 

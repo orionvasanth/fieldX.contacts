@@ -56,6 +56,6 @@
     </TableRow>
 
     <TableRow>
-        <View style="@style/table_divider"/>
+        <View style="@style/horizontal_table_divider"/>
     </TableRow>
 </TableLayout>

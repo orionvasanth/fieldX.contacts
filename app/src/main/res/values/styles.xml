@@ -48,7 +48,7 @@
         <item name="android:layout_weight">1</item>
     </style>
 
-    <style name="table_divider">
+    <style name="horizontal_table_divider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">2dp</item>
         <item name="android:background">@color/material_deep_teal_200</item>
@@ -56,6 +56,14 @@
         <item name="android:layout_marginLeft">20dp</item>
         <item name="android:layout_marginRight">20dp</item>
         <item name="android:layout_marginBottom">10dp</item>
+    </style>
+
+    <style name="vertical_divider">
+        <item name="android:layout_width">2dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@color/material_deep_teal_200</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginRight">5dp</item>
     </style>
 
     <style name="table_header">

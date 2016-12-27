@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableRow>
-    <View style="@style/table_divider"/>
+    <View style="@style/horizontal_table_divider"/>
 </TableRow>

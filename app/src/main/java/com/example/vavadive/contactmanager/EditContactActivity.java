@@ -886,7 +886,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                 }
                 websiteTable.addView(row);
 
-                row = inflater.inflate(R.layout.divider_table_row, websiteTable, false);
+                row = inflater.inflate(R.layout.horizontal_divider_table_row, websiteTable, false);
                 websiteTable.addView(row);
 
                 Object[] websiteObjects = websites.toArray();
@@ -934,7 +934,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                 }
                 addressTable.addView(row);
 
-                row = inflater.inflate(R.layout.divider_table_row, addressTable, false);
+                row = inflater.inflate(R.layout.horizontal_divider_table_row, addressTable, false);
                 addressTable.addView(row);
 
                 Object[] addressObjects = addresses.toArray();
@@ -1018,7 +1018,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                 }
                 organizationTable.addView(row);
 
-                row = inflater.inflate(R.layout.divider_table_row, organizationTable, false);
+                row = inflater.inflate(R.layout.horizontal_divider_table_row, organizationTable, false);
                 organizationTable.addView(row);
             }
         }
@@ -1037,7 +1037,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
             }
             notesTable.addView(row);
 
-            row = inflater.inflate(R.layout.divider_table_row, notesTable, false);
+            row = inflater.inflate(R.layout.horizontal_divider_table_row, notesTable, false);
             notesTable.addView(row);
         }
 
@@ -1055,7 +1055,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
             }
             nicknameTable.addView(row);
 
-            row = inflater.inflate(R.layout.divider_table_row, nicknameTable, false);
+            row = inflater.inflate(R.layout.horizontal_divider_table_row, nicknameTable, false);
             nicknameTable.addView(row);
         }
     }
@@ -1102,7 +1102,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
             }
             imTable.addView(row);
 
-            row = inflater.inflate(R.layout.divider_table_row, imTable, false);
+            row = inflater.inflate(R.layout.horizontal_divider_table_row, imTable, false);
             imTable.addView(row);
 
             Object[] imObjects = ims.toArray();
@@ -1136,7 +1136,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                     (TableLayout) findViewById(R.id.organization_tableLayout);
 
             if(organizationTable.getChildCount() == 0) {
-                row = inflater.inflate(R.layout.divider_table_row, organizationTable, false);
+                row = inflater.inflate(R.layout.horizontal_divider_table_row, organizationTable, false);
                 organizationTable.addView(row, 0);
 
                 row = inflater.inflate(R.layout.organization_table_job_row, organizationTable, false);
@@ -1187,7 +1187,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                 });
                 imTable.addView(row);
 
-                row = inflater.inflate(R.layout.divider_table_row, imTable, false);
+                row = inflater.inflate(R.layout.horizontal_divider_table_row, imTable, false);
                 imTable.addView(row);
             }
         }
@@ -1227,7 +1227,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
 
                 addressTable.addView(row);
 
-                row = inflater.inflate(R.layout.divider_table_row, addressTable, false);
+                row = inflater.inflate(R.layout.horizontal_divider_table_row, addressTable, false);
                 addressTable.addView(row);
             }
         }
@@ -1265,7 +1265,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                     row = inflater.inflate(R.layout.website_table_row, websiteTable, false);
                     websiteTable.addView(row);
 
-                    row = inflater.inflate(R.layout.divider_table_row, websiteTable, false);
+                    row = inflater.inflate(R.layout.horizontal_divider_table_row, websiteTable, false);
                     websiteTable.addView(row);
                 }
             }
@@ -1329,7 +1329,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
             row = inflater.inflate(R.layout.nickname_table_row, nicknameTable, false);
             nicknameTable.addView(row);
 
-            row = inflater.inflate(R.layout.divider_table_row, nicknameTable, false);
+            row = inflater.inflate(R.layout.horizontal_divider_table_row, nicknameTable, false);
             nicknameTable.addView(row);
         } else if(count == 2) {
             View row = inflater.inflate(R.layout.nickname_table_row, nicknameTable, false);
@@ -1351,7 +1351,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
             row = inflater.inflate(R.layout.notes_table_row, notesTable, false);
             notesTable.addView(row);
 
-            row = inflater.inflate(R.layout.divider_table_row, notesTable, false);
+            row = inflater.inflate(R.layout.horizontal_divider_table_row, notesTable, false);
             notesTable.addView(row);
         } else if(count == 2) {
             View row = inflater.inflate(R.layout.notes_table_row, notesTable, false);
