@@ -15,16 +15,14 @@
 
         <EditText
             android:id="@+id/editText_firstName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/editText.editText_name"
             android:inputType="textCapWords|textPersonName"
-            android:hint="@string/firstName"
-            android:layout_weight="1"/>
+            android:hint="@string/firstName"/>
 
         <ImageView
             android:id="@+id/collapse_name"
             android:layout_gravity="right|top"
-            android:layout_marginLeft="30dp"
+            android:layout_marginLeft="5dp"
             android:src="@drawable/ic_collapse_name"
             android:onClick="onClick"/>
     </TableRow>
@@ -38,11 +36,9 @@
 
     <EditText
         android:id="@+id/editText_middleName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/editText.editText_name"
         android:inputType="textCapWords|textPersonName"
-        android:hint="@string/middleName"
-        android:layout_weight="1"/>
+        android:hint="@string/middleName"/>
     </TableRow>
 
     <TableRow
@@ -54,10 +50,12 @@
 
     <EditText
         android:id="@+id/editText_lastName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/editText.editText_name"
         android:inputType="textCapWords|textPersonName"
-        android:hint="@string/lastName"
-        android:layout_weight="1"/>
+        android:hint="@string/lastName"/>
+    </TableRow>
+
+    <TableRow>
+        <View style="@style/table_divider"/>
     </TableRow>
 </TableLayout>

@@ -24,6 +24,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private Dao<Email, Long> emailDao;
     private Dao<Address, Long> addressDao;
     private Dao<IM, Long> imDao;
+    private Dao<Website, Long> websiteDao;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION, R.raw.ormlite_config);
@@ -37,6 +38,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, Email.class);
             TableUtils.createTable(connectionSource, Phone.class);
             TableUtils.createTable(connectionSource, IM.class);
+            TableUtils.createTable(connectionSource, Website.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -51,6 +53,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.dropTable(connectionSource, Email.class, false);
             TableUtils.dropTable(connectionSource, Phone.class, false);
             TableUtils.dropTable(connectionSource, IM.class, false);
+            TableUtils.dropTable(connectionSource, Website.class, false);
 
             onCreate(database, connectionSource);
         } catch (SQLException e) {
@@ -91,5 +94,12 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             imDao = getDao(IM.class);
         }
         return imDao;
+    }
+
+    public Dao<Website, Long> getWebsiteDao() throws SQLException {
+        if(websiteDao == null) {
+            websiteDao = getDao(Website.class);
+        }
+        return websiteDao;
     }
 }

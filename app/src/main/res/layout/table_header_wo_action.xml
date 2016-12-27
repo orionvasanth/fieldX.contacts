@@ -4,7 +4,7 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:text="@string/im"
+        android:id="@+id/field_name"
         style="@style/table_header" />
 
 </TableRow>

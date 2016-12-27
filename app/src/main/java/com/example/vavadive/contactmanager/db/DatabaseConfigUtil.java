@@ -12,7 +12,7 @@ import java.sql.SQLException;
 public class DatabaseConfigUtil extends OrmLiteConfigUtil {
 
     private static final Class<?>[] classes = new Class[] {Contact.class,
-            Phone.class, Email.class, Address.class, IM.class};
+            Phone.class, Email.class, Address.class, IM.class, Website.class};
 
     public static void main(String[] args) throws IOException, SQLException {
 

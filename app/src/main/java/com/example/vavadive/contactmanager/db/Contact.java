@@ -106,15 +106,15 @@ public class Contact {
         this.nickname = nickname;
     }
 
-    @DatabaseField
-    private String website;
+    @ForeignCollectionField
+    private Collection<Website> websites;
 
-    public String getWebsite() {
-        return website;
+    public Collection<Website> getWebsites() {
+        return websites;
     }
 
-    public void setWebsite(String website) {
-        this.website = website;
+    public void setWebsite(Collection<Website> websites) {
+        this.websites = websites;
     }
 
     @ForeignCollectionField

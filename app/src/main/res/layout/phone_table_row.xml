@@ -14,10 +14,8 @@
 
     <EditText
         android:id="@+id/editText_phone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="phone" />
+        android:inputType="phone"
+        style="@style/editText" />
 
     <ImageView
         android:id="@+id/remove_phone"

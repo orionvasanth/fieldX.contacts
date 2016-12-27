@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TableLayout;
+import android.widget.TextView;
 
 import com.example.vavadive.contactmanager.common.AddressType;
 import com.example.vavadive.contactmanager.common.ContactType;
@@ -35,6 +36,7 @@ import com.example.vavadive.contactmanager.db.DatabaseHelper;
 import com.example.vavadive.contactmanager.db.Email;
 import com.example.vavadive.contactmanager.db.IM;
 import com.example.vavadive.contactmanager.db.Phone;
+import com.example.vavadive.contactmanager.db.Website;
 import com.example.vavadive.contactmanager.util.StringUtil;
 
 import java.sql.SQLException;
@@ -57,16 +59,16 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
         setSupportActionBar(myToolbar);
 
         ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null) {
+        if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        Spinner contactType = (Spinner)findViewById(R.id.spinner_contact_types);
+        Spinner contactType = (Spinner) findViewById(R.id.spinner_contact_types);
         ArrayAdapter<ContactType> contactTypeArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, ContactType.values());
 
-        if(contactTypeArrayAdapter != null) {
+        if (contactTypeArrayAdapter != null) {
             contactTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             contactType.setAdapter(contactTypeArrayAdapter);
         }
@@ -74,7 +76,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
         Spinner phoneType = (Spinner) findViewById(R.id.spinner_phone_types);
         ArrayAdapter<PhoneType> phoneTypeArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, PhoneType.values());
-        if(phoneTypeArrayAdapter != null) {
+        if (phoneTypeArrayAdapter != null) {
             phoneTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             phoneType.setAdapter(phoneTypeArrayAdapter);
         }
@@ -82,23 +84,15 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
         Spinner emailType = (Spinner) findViewById(R.id.spinner_email_types);
         ArrayAdapter<EmailType> emailTypeArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, EmailType.values());
-        if(emailTypeArrayAdapter != null) {
+        if (emailTypeArrayAdapter != null) {
             emailTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             emailType.setAdapter(emailTypeArrayAdapter);
-        }
-
-        Spinner addressType = (Spinner) findViewById(R.id.spinner_address_types);
-        ArrayAdapter<AddressType> addressTypeArrayAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, AddressType.values());
-        if(addressTypeArrayAdapter != null) {
-            addressTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            addressType.setAdapter(addressTypeArrayAdapter);
         }
 
         databaseHelper = new DatabaseHelper(this);
 
         long id = getIntent().getLongExtra(getResources().getString(R.string.key), 0);
-        if(id != 0) {
+        if (id != 0) {
             populate(id);
         }
         addListener();
@@ -114,8 +108,8 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
         }
 
         TableLayout phoneTable = (TableLayout) findViewById(R.id.phone_tableLayout);
-        if(phoneTable != null) {
-            int count = phoneTable.getChildCount();
+        if (phoneTable != null) {
+            int count = phoneTable.getChildCount() - 1;
             for (int i = 1; i < count; i++) {
                 View phoneRow = phoneTable.getChildAt(i);
                 Spinner phoneType = (Spinner) phoneRow.findViewById(R.id.spinner_phone_types);
@@ -147,8 +141,8 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
             e.printStackTrace();
         }
         TableLayout emailTable = (TableLayout) findViewById(R.id.email_tableLayout);
-        if(emailTable != null) {
-            int count = emailTable.getChildCount();
+        if (emailTable != null) {
+            int count = emailTable.getChildCount() - 1;
             for (int i = 1; i < count; i++) {
                 View emailRow = emailTable.getChildAt(i);
                 Spinner emailType = (Spinner) emailRow.findViewById(R.id.spinner_email_types);
@@ -182,17 +176,17 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
         }
 
         TableLayout imTable = (TableLayout) findViewById(R.id.im_tableLayout);
-        if(imTable != null && imTable.getChildCount() != 0) {
-            int count = imTable.getChildCount();
+        if (imTable != null && imTable.getChildCount() != 0) {
+            int count = imTable.getChildCount() - 1;
 
-            for(int i = 1; i < count; i++) {
+            for (int i = 1; i < count; i++) {
                 View imRow = imTable.getChildAt(i);
                 Spinner imType = (Spinner) imRow.findViewById(R.id.spinner_im_types);
                 EditText imText = (EditText) imRow.findViewById(R.id.im);
 
-                if(imType != null && imText != null) {
+                if (imType != null && imText != null) {
                     String id = imText.getText().toString();
-                    if(!StringUtil.isNull(id)) {
+                    if (!StringUtil.isNull(id)) {
                         IM im = new IM();
 
                         im.setIm(id);
@@ -212,60 +206,92 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void saveAddress(Contact contact) {
-        Spinner addressType = (Spinner) findViewById(R.id.spinner_address_types);
-        EditText address = (EditText) findViewById(R.id.editText_address);
-        if(addressType != null && address != null) {
-            if (!StringUtil.isNull(address.getText().toString())) {
-                try {
-                    databaseHelper.getAddressDao().delete(contact.getAddresses());
+        Collection<Address> addresses = contact.getAddresses();
+        try {
+            databaseHelper.getAddressDao().delete(addresses);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-                    Address lAddress = new Address();
-                    lAddress.setAddress(address.getText().toString());
-                    lAddress.setType((AddressType) addressType.getSelectedItem());
-                    lAddress.setContact(contact);
+        TableLayout addressTable = (TableLayout) findViewById(R.id.address_tableLayout);
+        if (addressTable != null && addressTable.getChildCount() > 1) {
+            int count = addressTable.getChildCount() - 1;
+            for (int i = 1; i < count; i++) {
+                View addressRow = addressTable.getChildAt(i);
+                Spinner addressType = (Spinner) addressRow.findViewById(R.id.spinner);
+                EditText address = (EditText) addressRow.findViewById(R.id.value);
+                if (addressType != null && address != null) {
+                    if (!StringUtil.isNull(address.getText().toString())) {
+                        try {
+                            Address lAddress = new Address();
+                            lAddress.setAddress(address.getText().toString());
+                            lAddress.setType((AddressType) addressType.getSelectedItem());
+                            lAddress.setContact(contact);
 
-                    databaseHelper.getAddressDao().createIfNotExists(lAddress);
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                            databaseHelper.getAddressDao().createIfNotExists(lAddress);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void saveWebsites(Contact contact) {
+        TableLayout websiteTable = (TableLayout) findViewById(R.id.website_tableLayout);
+        if (websiteTable != null && websiteTable.getChildCount() > 1) {
+            int count = websiteTable.getChildCount() - 1;
+            for (int i = 1; i < count; i++) {
+                View websiteRow = websiteTable.getChildAt(i);
+                EditText url = (EditText) websiteRow.findViewById(R.id.website);
+                if (url != null) {
+                    String value = url.getText().toString();
+                    if (!StringUtil.isNull(value)) {
+                        Website website = new Website();
+                        website.setUrl(value);
+                        website.setContact(contact);
+
+                        try {
+                            databaseHelper.getWebsiteDao().createIfNotExists(website);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         }
     }
 
     private void save() {
-        if(displayedContact != null) {
-            Spinner contactType = (Spinner)findViewById(R.id.spinner_contact_types);
-            if(contactType != null) {
+        if (displayedContact != null) {
+            Spinner contactType = (Spinner) findViewById(R.id.spinner_contact_types);
+            if (contactType != null) {
                 displayedContact.setContactType((ContactType) contactType.getSelectedItem());
             }
 
             EditText company = (EditText) findViewById(R.id.company);
-            if(company != null) {
+            if (company != null) {
                 displayedContact.setCompany(company.getText().toString());
             }
 
             EditText job = (EditText) findViewById(R.id.job);
-            if(job != null) {
+            if (job != null) {
                 displayedContact.setJobTitle(job.getText().toString());
             }
 
             EditText nickname = (EditText) findViewById(R.id.nickname);
-            if(nickname != null) {
+            if (nickname != null) {
                 displayedContact.setNickname(nickname.getText().toString());
             }
 
             EditText notes = (EditText) findViewById(R.id.notes);
-            if(notes != null) {
+            if (notes != null) {
                 displayedContact.setNotes(notes.getText().toString());
             }
 
-            EditText website = (EditText) findViewById(R.id.website);
-            if(website != null) {
-                displayedContact.setWebsite(website.getText().toString());
-            }
-
             try {
-                if(displayedContact.getFirstName().length() == 0) {
+                if (displayedContact.getFirstName().length() == 0) {
                     setResult(RESULT_CANCELED);
                 } else {
                     setResult(RESULT_OK);
@@ -276,7 +302,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                     saveEmails(displayedContact);
                     saveIMs(displayedContact);
                     saveAddress(displayedContact);
-
+                    saveWebsites(displayedContact);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -289,7 +315,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
     public void addListener() {
         final Button add_field_button = (Button) findViewById(R.id.add_field);
 
-        if(add_field_button != null) {
+        if (add_field_button != null) {
             add_field_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -328,7 +354,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
         }
 
         ImageView add_email = (ImageView) findViewById(R.id.add_email);
-        if(add_email != null) {
+        if (add_email != null) {
             add_email.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -338,7 +364,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
         }
 
         ImageView add_phone = (ImageView) findViewById(R.id.add_phone);
-        if(add_phone != null) {
+        if (add_phone != null) {
             add_phone.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -348,7 +374,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
         }
 
         ImageView remove_email = (ImageView) findViewById(R.id.remove_email);
-        if(remove_email != null) {
+        if (remove_email != null) {
             remove_email.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -358,7 +384,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
         }
 
         ImageView remove_phone = (ImageView) findViewById(R.id.remove_phone);
-        if(remove_phone != null) {
+        if (remove_phone != null) {
             remove_phone.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -368,7 +394,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
         }
 
         final EditText name = (EditText) findViewById(R.id.editText_name);
-        if(name != null) {
+        if (name != null) {
             name.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -390,7 +416,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
 
     private void updateName(String fullName) {
 
-        if(!StringUtil.isNull(fullName)) {
+        if (!StringUtil.isNull(fullName)) {
             String[] names = fullName.split(" ");
             if (names.length < 3) {
                 switch (names.length) {
@@ -416,7 +442,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                 displayedContact.setMiddleName(names[names.length - 2]);
 
                 StringBuilder firstName = new StringBuilder();
-                for(int i = 0; i < names.length - 2; i++) {
+                for (int i = 0; i < names.length - 2; i++) {
                     firstName.append(names[i] + " ");
                 }
                 displayedContact.setFirstName(firstName.toString().trim());
@@ -438,7 +464,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
         EditText middleName = (EditText) name_expanded.findViewById(R.id.editText_middleName);
         EditText lastName = (EditText) name_expanded.findViewById(R.id.editText_lastName);
 
-        if(firstName == null || middleName == null || lastName == null) {
+        if (firstName == null || middleName == null || lastName == null) {
             return;
         }
 
@@ -501,15 +527,15 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
 
     private void collapseName() {
         StringBuilder fullName = new StringBuilder();
-        if(!StringUtil.isNull(displayedContact.getFirstName())) {
+        if (!StringUtil.isNull(displayedContact.getFirstName())) {
             fullName.append(displayedContact.getFirstName() + " ");
         }
 
-        if(!StringUtil.isNull(displayedContact.getMiddleName())) {
+        if (!StringUtil.isNull(displayedContact.getMiddleName())) {
             fullName.append(displayedContact.getMiddleName() + " ");
         }
 
-        if(!StringUtil.isNull(displayedContact.getLastName())) {
+        if (!StringUtil.isNull(displayedContact.getLastName())) {
             fullName.append(displayedContact.getLastName());
         }
 
@@ -523,7 +549,7 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
         View name_collapsed = inflater.inflate(R.layout.name_collapsed,
                 name_linearLayout, false);
         EditText name = (EditText) name_collapsed.findViewById(R.id.editText_name);
-        if(name != null) {
+        if (name != null) {
             name.setText(fullName.toString().trim());
             name.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -556,6 +582,18 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
             case R.id.collapse_name:
                 collapseName();
                 break;
+
+            case R.id.remove:
+                removeField(v);
+                break;
+
+            case R.id.add_notes:
+                addNotes();
+                break;
+
+            case R.id.add_nickname:
+                addNickname();
+                break;
         }
     }
 
@@ -580,7 +618,14 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                 }
             });
 
-            phoneTable.addView(row);
+            int count = phoneTable.getChildCount();
+            if(count < 2) {
+
+            } else if(count == 2) {
+                phoneTable.addView(row, 1);
+            } else if(count > 2) {
+                phoneTable.addView(row, count - 1);
+            }
         }
     }
 
@@ -605,7 +650,14 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                 }
             });
 
-            emailTable.addView(row);
+            int count = emailTable.getChildCount();
+            if(count < 2) {
+
+            } else if(count == 2) {
+                emailTable.addView(row, 1);
+            } else if(count > 2) {
+                emailTable.addView(row, count - 1);
+            }
         }
     }
 
@@ -630,13 +682,20 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                 }
             });
 
-            imTable.addView(row);
+            int count = imTable.getChildCount();
+            if(count < 2) {
+
+            } else if(count == 2) {
+                imTable.addView(row, 1);
+            } else if(count > 2) {
+                imTable.addView(row, count - 1);
+            }
         }
     }
 
     private void removeField(View view) {
         View row = (View) view.getParent();
-        ViewGroup container = ((ViewGroup)row.getParent());
+        ViewGroup container = ((ViewGroup) row.getParent());
         container.removeView(row);
         container.invalidate();
     }
@@ -672,12 +731,13 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
     private void populate(long id) {
         try {
             displayedContact = databaseHelper.getContactDao().queryForId(id);
-            if(displayedContact != null) {
+            if (displayedContact != null) {
                 populateContact(displayedContact);
                 populatePhones(displayedContact.getPhones());
                 populateEmails(displayedContact.getEmails());
                 populateAddresses(displayedContact.getAddresses());
                 populateIMs(displayedContact.getIms());
+                populateWebsites(displayedContact.getWebsites());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -703,10 +763,10 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void populatePhones(Collection<Phone> phones) {
-        if(!phones.isEmpty()) {
+        if (!phones.isEmpty()) {
             TableLayout phoneTable = (TableLayout) findViewById(R.id.phone_tableLayout);
 
-            if(phoneTable != null) {
+            if (phoneTable != null) {
                 if (phones.size() > 1) {
                     Object[] phoneObjects = phones.toArray();
                     View phoneRow = phoneTable.getChildAt(1);
@@ -735,7 +795,14 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                             }
                         });
 
-                        phoneTable.addView(row);
+                        int count = phoneTable.getChildCount();
+                        if(count < 2) {
+
+                        } else if(count == 2) {
+                            phoneTable.addView(row, 1);
+                        } else if(count > 2) {
+                            phoneTable.addView(row, count - 1);
+                        }
                     }
                 } else {
                     Phone phone = (Phone) phones.toArray()[0];
@@ -748,9 +815,9 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void populateEmails(Collection<Email> emails) {
-        if(!emails.isEmpty()) {
+        if (!emails.isEmpty()) {
             TableLayout emailTable = (TableLayout) findViewById(R.id.email_tableLayout);
-            if(emailTable != null) {
+            if (emailTable != null) {
                 if (emails.size() > 1) {
                     Object[] emailObjects = emails.toArray();
                     View emailRow = emailTable.getChildAt(1);
@@ -779,7 +846,14 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                             }
                         });
 
-                        emailTable.addView(row);
+                        int count = emailTable.getChildCount();
+                        if(count < 2) {
+
+                        } else if(count == 2) {
+                            emailTable.addView(row, 1);
+                        } else if(count > 2) {
+                            emailTable.addView(row, count - 1);
+                        }
                     }
                 } else {
                     Email email = (Email) emails.toArray()[0];
@@ -791,26 +865,108 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+    private void populateWebsites(Collection<Website> websites) {
+        if (!websites.isEmpty()) {
+            TableLayout websiteTable = (TableLayout) findViewById(R.id.website_tableLayout);
+
+            if (websiteTable != null) {
+                LayoutInflater inflater =
+                        (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+                View row = inflater.inflate(R.layout.website_table_header, websiteTable, false);
+
+                ImageView add = (ImageView) row.findViewById(R.id.add);
+                if (add != null) {
+                    add.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            addWebsite();
+                        }
+                    });
+                }
+                websiteTable.addView(row);
+
+                row = inflater.inflate(R.layout.divider_table_row, websiteTable, false);
+                websiteTable.addView(row);
+
+                Object[] websiteObjects = websites.toArray();
+                for (int i = 0; i < websites.size(); i++) {
+                    Website website = (Website) websiteObjects[i];
+                    row = inflater.inflate(R.layout.website_table_row, websiteTable, false);
+
+                    EditText value = (EditText) row.findViewById(R.id.website);
+                    value.setText(website.getUrl());
+
+                    int count = websiteTable.getChildCount();
+                    if(count < 2) {
+
+                    } else if(count == 2) {
+                        websiteTable.addView(row, 1);
+                    } else if(count > 2) {
+                        websiteTable.addView(row, count - 1);
+                    }
+                }
+            }
+        }
+    }
+
     private void populateAddresses(Collection<Address> addresses) {
-        if(!addresses.isEmpty()) {
+        if (!addresses.isEmpty()) {
             TableLayout addressTable = (TableLayout) findViewById(R.id.address_tableLayout);
 
-            if(addressTable != null) {
-                Address address = (Address) addresses.toArray()[0];
-                View addressRow = addressTable.getChildAt(1);
+            if (addressTable != null) {
+                LayoutInflater inflater =
+                        (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-                Spinner addressType = (Spinner) addressRow.findViewById(R.id.spinner_address_types);
-                addressType.setSelection(address.getType().ordinal());
+                View row = inflater.inflate(R.layout.table_header_with_action, addressTable, false);
 
-                EditText adressVal = (EditText) addressRow.findViewById(R.id.editText_address);
-                adressVal.setText(address.getAddress());
+                TextView title = (TextView) row.findViewById(R.id.field_name);
+                title.setText(getResources().getString(R.string.address));
+
+                ImageView add = (ImageView) row.findViewById(R.id.add);
+                if (add != null) {
+                    add.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            addAddress();
+                        }
+                    });
+                }
+                addressTable.addView(row);
+
+                row = inflater.inflate(R.layout.divider_table_row, addressTable, false);
+                addressTable.addView(row);
+
+                Object[] addressObjects = addresses.toArray();
+
+                for (int i = 0; i < addresses.size(); i++) {
+                    Address address = (Address) addressObjects[i];
+
+                    row = inflater.inflate(R.layout.table_row_with_action, addressTable, false);
+                    Spinner addressType = (Spinner) row.findViewById(R.id.spinner);
+                    ArrayAdapter<AddressType> addressTypeArrayAdapter = new ArrayAdapter<>(this,
+                            android.R.layout.simple_spinner_item, AddressType.values());
+                    addressTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    addressType.setAdapter(addressTypeArrayAdapter);
+
+                    EditText value = (EditText) row.findViewById(R.id.value);
+                    value.setText(address.getAddress());
+                    int count = addressTable.getChildCount();
+                    if(count < 2) {
+
+                    } else if(count == 2) {
+                        addressTable.addView(row, 1);
+                    } else if(count > 2) {
+                        addressTable.addView(row, count - 1);
+                    }
+                }
             }
         }
     }
 
     private void populateContact(Contact contact) {
         EditText name = (EditText) findViewById(R.id.editText_name);
-        if(name == null) {
+        if (name == null) {
             EditText firstName = (EditText) findViewById(R.id.editText_firstName);
             firstName.setText(contact.getFirstName());
 
@@ -821,26 +977,26 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
             lastName.setText(contact.getLastName());
         } else {
             StringBuilder fullName = new StringBuilder();
-            if(!StringUtil.isNull(contact.getFirstName())) {
+            if (!StringUtil.isNull(contact.getFirstName())) {
                 fullName.append(contact.getFirstName() + " ");
             }
 
-            if(!StringUtil.isNull(contact.getMiddleName())) {
+            if (!StringUtil.isNull(contact.getMiddleName())) {
                 fullName.append(contact.getMiddleName() + " ");
             }
 
-            if(!StringUtil.isNull(contact.getLastName())) {
+            if (!StringUtil.isNull(contact.getLastName())) {
                 fullName.append(contact.getLastName());
             }
 
             name.setText(fullName.toString().trim());
         }
 
-        Spinner contactType = (Spinner)findViewById(R.id.spinner_contact_types);
+        Spinner contactType = (Spinner) findViewById(R.id.spinner_contact_types);
         contactType.setSelection(contact.getContactType().ordinal());
 
-        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if(!StringUtil.isNull(contact.getCompany())) {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        if (!StringUtil.isNull(contact.getCompany())) {
             TableLayout organizationTable =
                     (TableLayout) findViewById(R.id.organization_tableLayout);
 
@@ -849,22 +1005,25 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
 
             row = inflater.inflate(R.layout.organization_table_company_row, organizationTable, false);
             EditText company = (EditText) row.findViewById(R.id.company);
-            if(company != null) {
+            if (company != null) {
                 company.setText(contact.getCompany());
             }
             organizationTable.addView(row);
 
-            if(!StringUtil.isNull(contact.getJobTitle())) {
+            if (!StringUtil.isNull(contact.getJobTitle())) {
                 row = inflater.inflate(R.layout.organization_table_job_row, organizationTable, false);
                 EditText job = (EditText) row.findViewById(R.id.job);
-                if(job != null) {
+                if (job != null) {
                     job.setText(contact.getJobTitle());
                 }
+                organizationTable.addView(row);
+
+                row = inflater.inflate(R.layout.divider_table_row, organizationTable, false);
                 organizationTable.addView(row);
             }
         }
 
-        if(!StringUtil.isNull(contact.getNotes())) {
+        if (!StringUtil.isNull(contact.getNotes())) {
             TableLayout notesTable =
                     (TableLayout) findViewById(R.id.notes_tableLayout);
 
@@ -873,13 +1032,16 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
 
             row = inflater.inflate(R.layout.notes_table_row, notesTable, false);
             EditText notes = (EditText) row.findViewById(R.id.notes);
-            if(notes != null) {
+            if (notes != null) {
                 notes.setText(contact.getNotes());
             }
             notesTable.addView(row);
+
+            row = inflater.inflate(R.layout.divider_table_row, notesTable, false);
+            notesTable.addView(row);
         }
 
-        if(!StringUtil.isNull(contact.getNickname())) {
+        if (!StringUtil.isNull(contact.getNickname())) {
             TableLayout nicknameTable =
                     (TableLayout) findViewById(R.id.nickname_tableLayout);
 
@@ -888,46 +1050,32 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
 
             row = inflater.inflate(R.layout.nickname_table_row, nicknameTable, false);
             EditText nickname = (EditText) row.findViewById(R.id.nickname);
-            if(nickname != null) {
-                nickname.setText(contact.getNotes());
+            if (nickname != null) {
+                nickname.setText(contact.getNickname());
             }
             nicknameTable.addView(row);
-        }
 
-        if(!StringUtil.isNull(contact.getWebsite())) {
-            TableLayout websiteTable =
-                    (TableLayout) findViewById(R.id.website_tableLayout);
-
-            View row = inflater.inflate(R.layout.website_table_header, websiteTable, false);
-            websiteTable.addView(row);
-
-            row = inflater.inflate(R.layout.website_table_row, websiteTable, false);
-            EditText website = (EditText) row.findViewById(R.id.website);
-            if(website != null) {
-                website.setText(contact.getWebsite());
-            }
-            websiteTable.addView(row);
+            row = inflater.inflate(R.layout.divider_table_row, nicknameTable, false);
+            nicknameTable.addView(row);
         }
     }
 
     private void populateIM(IM im, View imRow) {
         Spinner imType = (Spinner) imRow.findViewById(R.id.spinner_im_types);
-        if(imType != null) {
+        if (imType != null) {
             ArrayAdapter<IMType> emailTypeArrayAdapter = new ArrayAdapter<>(this,
                     android.R.layout.simple_spinner_item, IMType.values());
             imType.setAdapter(emailTypeArrayAdapter);
             imType.setSelection(im.getType().ordinal());
-            imType.setEnabled(false);
         }
 
         EditText imId = (EditText) imRow.findViewById(R.id.im);
-        if(imId != null) {
+        if (imId != null) {
             imId.setText(im.getIm());
-            imId.setInputType(InputType.TYPE_NULL);
         }
 
         ImageView remove_im = (ImageView) imRow.findViewById(R.id.remove_im);
-        if(remove_im != null) {
+        if (remove_im != null) {
             remove_im.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -938,13 +1086,13 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void populateIMs(Collection<IM> ims) {
-        if(!ims.isEmpty()) {
+        if (!ims.isEmpty()) {
             LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             TableLayout imTable = (TableLayout) findViewById((R.id.im_tableLayout));
             View row = inflater.inflate(R.layout.im_table_header, imTable, false);
             ImageView add_im = (ImageView) row.findViewById(R.id.add_im);
-            if(add_im != null) {
+            if (add_im != null) {
                 add_im.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -954,14 +1102,24 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
             }
             imTable.addView(row);
 
+            row = inflater.inflate(R.layout.divider_table_row, imTable, false);
+            imTable.addView(row);
+
             Object[] imObjects = ims.toArray();
-            for(Object object : imObjects) {
+            for (Object object : imObjects) {
                 row = inflater.inflate(R.layout.im_table_row, imTable, false);
 
                 IM im = (IM) object;
                 populateIM(im, row);
 
-                imTable.addView(row);
+                int count = imTable.getChildCount();
+                if(count < 2) {
+
+                } else if(count == 2) {
+                    imTable.addView(row, 1);
+                } else if(count > 2) {
+                    imTable.addView(row, count - 1);
+                }
             }
         }
     }
@@ -978,14 +1136,17 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                     (TableLayout) findViewById(R.id.organization_tableLayout);
 
             if(organizationTable.getChildCount() == 0) {
-                row = inflater.inflate(R.layout.organization_table_header, organizationTable, false);
-                organizationTable.addView(row);
-
-                row = inflater.inflate(R.layout.organization_table_company_row, organizationTable, false);
-                organizationTable.addView(row);
+                row = inflater.inflate(R.layout.divider_table_row, organizationTable, false);
+                organizationTable.addView(row, 0);
 
                 row = inflater.inflate(R.layout.organization_table_job_row, organizationTable, false);
-                organizationTable.addView(row);
+                organizationTable.addView(row, 0);
+
+                row = inflater.inflate(R.layout.organization_table_company_row, organizationTable, false);
+                organizationTable.addView(row, 0);
+
+                row = inflater.inflate(R.layout.organization_table_header, organizationTable, false);
+                organizationTable.addView(row, 0);
             }
         }
 
@@ -995,7 +1156,9 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                     (TableLayout) findViewById(R.id.im_tableLayout);
 
             if(imTable.getChildCount() == 0) {
+
                 row = inflater.inflate(R.layout.im_table_header, imTable, false);
+
                 ImageView add_im = (ImageView) row.findViewById(R.id.add_im);
                 if(add_im != null) {
                     add_im.setOnClickListener(new View.OnClickListener() {
@@ -1007,36 +1170,76 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                 }
                 imTable.addView(row);
 
-                addIM();
+                row = inflater.inflate(R.layout.im_table_row, imTable, false);
+
+                Spinner imType = (Spinner) row.findViewById(R.id.spinner_im_types);
+                ArrayAdapter<IMType> imTypeArrayAdapter = new ArrayAdapter<>(this,
+                        android.R.layout.simple_spinner_item, IMType.values());
+                imTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                imType.setAdapter(imTypeArrayAdapter);
+
+                ImageView remove_im = (ImageView) row.findViewById(R.id.remove_im);
+                remove_im.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        removeField(view);
+                    }
+                });
+                imTable.addView(row);
+
+                row = inflater.inflate(R.layout.divider_table_row, imTable, false);
+                imTable.addView(row);
+            }
+        }
+
+        CheckBox address_cb = (CheckBox) container.findViewById(R.id.address_cb);
+        if(address_cb.isChecked()) {
+            TableLayout addressTable =
+                    (TableLayout) findViewById(R.id.address_tableLayout);
+
+            if(addressTable.getChildCount() == 0) {
+                row = inflater.inflate(R.layout.table_header_with_action, addressTable, false);
+
+                TextView title = (TextView) row.findViewById(R.id.field_name);
+                title.setText(getResources().getString(R.string.address));
+
+                ImageView add = (ImageView) row.findViewById(R.id.add);
+                if(add != null) {
+                    add.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            addAddress();
+                        }
+                    });
+                }
+                addressTable.addView(row);
+
+                row = inflater.inflate(R.layout.table_row_with_action, addressTable, false);
+
+                Spinner addressType = (Spinner) row.findViewById(R.id.spinner);
+                ArrayAdapter<AddressType> addressTypeArrayAdapter = new ArrayAdapter<>(this,
+                        android.R.layout.simple_spinner_item, AddressType.values());
+                addressTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                addressType.setAdapter(addressTypeArrayAdapter);
+
+                EditText value = (EditText) row.findViewById(R.id.value);
+                value.setInputType(InputType.TYPE_TEXT_VARIATION_POSTAL_ADDRESS);
+
+                addressTable.addView(row);
+
+                row = inflater.inflate(R.layout.divider_table_row, addressTable, false);
+                addressTable.addView(row);
             }
         }
 
         CheckBox notes_cb = (CheckBox) container.findViewById(R.id.notes_cb);
         if(notes_cb.isChecked()) {
-            TableLayout notesTable =
-                    (TableLayout) findViewById(R.id.notes_tableLayout);
-
-            if(notesTable.getChildCount() == 0) {
-                row = inflater.inflate(R.layout.notes_table_header, notesTable, false);
-                notesTable.addView(row);
-
-                row = inflater.inflate(R.layout.notes_table_row, notesTable, false);
-                notesTable.addView(row);
-            }
+            addNotes();
         }
 
         CheckBox nickname_cb = (CheckBox) container.findViewById(R.id.nickname_cb);
         if(nickname_cb.isChecked()) {
-            TableLayout nicknameTable =
-                    (TableLayout) findViewById(R.id.nickname_tableLayout);
-
-            if(nicknameTable.getChildCount() == 0) {
-                row = inflater.inflate(R.layout.nickname_table_header, nicknameTable, false);
-                nicknameTable.addView(row);
-
-                row = inflater.inflate(R.layout.nickname_table_row, nicknameTable, false);
-                nicknameTable.addView(row);
-            }
+            addNickname();
         }
 
         CheckBox website_cb = (CheckBox) container.findViewById(R.id.website_cb);
@@ -1045,12 +1248,114 @@ public class EditContactActivity extends AppCompatActivity implements View.OnCli
                     (TableLayout) findViewById(R.id.website_tableLayout);
 
             if(websiteTable.getChildCount() == 0) {
-                row = inflater.inflate(R.layout.website_table_header, websiteTable, false);
-                websiteTable.addView(row);
+                if(websiteTable.getChildCount() == 0) {
+                    row = inflater.inflate(R.layout.website_table_header, websiteTable, false);
 
-                row = inflater.inflate(R.layout.website_table_row, websiteTable, false);
-                websiteTable.addView(row);
+                    ImageView add = (ImageView) row.findViewById(R.id.add);
+                    if(add != null) {
+                        add.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                addWebsite();
+                            }
+                        });
+                    }
+                    websiteTable.addView(row);
+
+                    row = inflater.inflate(R.layout.website_table_row, websiteTable, false);
+                    websiteTable.addView(row);
+
+                    row = inflater.inflate(R.layout.divider_table_row, websiteTable, false);
+                    websiteTable.addView(row);
+                }
             }
+        }
+    }
+
+    private void addAddress() {
+        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        TableLayout addressTable = (TableLayout) findViewById(R.id.address_tableLayout);
+        if(addressTable != null) {
+            View row = inflater.inflate(R.layout.table_row_with_action, addressTable, false);
+
+            Spinner addressType = (Spinner) row.findViewById(R.id.spinner);
+            ArrayAdapter<AddressType> addressTypeArrayAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_item, AddressType.values());
+            addressTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            addressType.setAdapter(addressTypeArrayAdapter);
+
+            int count = addressTable.getChildCount();
+
+            if(count < 2) {
+
+            } else if(count == 2) {
+                addressTable.addView(row, 1);
+            } else if(count > 2) {
+                addressTable.addView(row, count - 1);
+            }
+        }
+    }
+
+    private void addWebsite() {
+        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        TableLayout websiteTable = (TableLayout) findViewById(R.id.website_tableLayout);
+        if(websiteTable != null) {
+            View row = inflater.inflate(R.layout.website_table_row, websiteTable, false);
+
+            int count = websiteTable.getChildCount();
+            if(count < 2) {
+
+            } else if(count == 2) {
+                websiteTable.addView(row, 1);
+            } else if(count > 2) {
+                websiteTable.addView(row, count - 1);
+            }
+        }
+    }
+
+    private void addNickname() {
+        TableLayout nicknameTable =
+                (TableLayout) findViewById(R.id.nickname_tableLayout);
+
+        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        int count = nicknameTable.getChildCount();
+        if(count == 0) {
+            View row = inflater.inflate(R.layout.nickname_table_header, nicknameTable, false);
+            nicknameTable.addView(row);
+
+            row = inflater.inflate(R.layout.nickname_table_row, nicknameTable, false);
+            nicknameTable.addView(row);
+
+            row = inflater.inflate(R.layout.divider_table_row, nicknameTable, false);
+            nicknameTable.addView(row);
+        } else if(count == 2) {
+            View row = inflater.inflate(R.layout.nickname_table_row, nicknameTable, false);
+            nicknameTable.addView(row, 1);
+        }
+    }
+
+    private void addNotes() {
+        TableLayout notesTable =
+                (TableLayout) findViewById(R.id.notes_tableLayout);
+
+        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        int count = notesTable.getChildCount();
+        if(count == 0) {
+            View row = inflater.inflate(R.layout.notes_table_header, notesTable, false);
+            notesTable.addView(row);
+
+            row = inflater.inflate(R.layout.notes_table_row, notesTable, false);
+            notesTable.addView(row);
+
+            row = inflater.inflate(R.layout.divider_table_row, notesTable, false);
+            notesTable.addView(row);
+        } else if(count == 2) {
+            View row = inflater.inflate(R.layout.notes_table_row, notesTable, false);
+            notesTable.addView(row, 1);
         }
     }
 }

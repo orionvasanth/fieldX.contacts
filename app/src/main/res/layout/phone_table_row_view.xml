@@ -4,21 +4,14 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp"
-    android:layout_marginBottom="20dp">
+    android:layout_marginBottom="10dp">
 
-    <Spinner
-        android:id="@+id/spinner_phone_types"
-        android:layout_width="75dp"
-        android:dropDownWidth="wrap_content"
-        android:layout_gravity="right"
-        android:clickable="false"/>
-
-    <EditText
+    <TextView
         android:id="@+id/editText_phone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="none" />
+        android:textSize="20sp"
+        android:layout_weight="1"/>
 
     <ImageView
         android:id="@+id/call"

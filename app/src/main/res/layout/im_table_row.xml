@@ -15,9 +15,7 @@
 
     <EditText
         android:id="@+id/im"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
+        style="@style/editText"
         android:inputType="textEmailAddress" />
 
     <ImageView

@@ -6,11 +6,12 @@
     android:layout_marginBottom="10dp">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left"
         android:text="@string/website"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textStyle="bold" />
+        style="@style/table_header_textView"/>
+
+    <ImageView
+        android:id="@+id/add"
+        android:src="@drawable/ic_add_field"
+        android:onClick="onClick"/>
 
 </TableRow>

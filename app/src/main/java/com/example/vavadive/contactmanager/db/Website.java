@@ -1,14 +1,13 @@
 package com.example.vavadive.contactmanager.db;
 
-import com.example.vavadive.contactmanager.common.IMType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 /**
- * Created by vavadive on 12/21/2016.
+ * Created by vavadive on 12/26/2016.
  */
-@DatabaseTable(tableName = "im_details")
-public class IM {
+@DatabaseTable(tableName = "website_details")
+public class Website {
     public Long getId() {
         return _id;
     }
@@ -16,27 +15,16 @@ public class IM {
     @DatabaseField(generatedId = true)
     private Long _id;
 
-    public IMType getType() {
-        return type;
+    public String getUrl() {
+        return url;
     }
 
-    public void setType(IMType type) {
-        this.type = type;
-    }
-
-    @DatabaseField
-    private IMType type;
-
-    public String getIm() {
-        return im;
-    }
-
-    public void setIm(String im) {
-        this.im = im;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     @DatabaseField
-    private String im;
+    private String url;
 
     public Contact getContact() {
         return contact;
@@ -62,11 +50,11 @@ public class IM {
 
     @Override
     public boolean equals(Object o) {
-        if(o instanceof IM) {
-            IM im = (IM) o;
+        if(o instanceof Website) {
+            Website url = (Website) o;
 
-            if((getId().equals(im.getId())) &&
-                    getLastModified().equals(im.getLastModified())) {
+            if((getId().equals(url.getId())) &&
+                    getLastModified().equals(url.getLastModified())) {
                 return true;
             }
         }

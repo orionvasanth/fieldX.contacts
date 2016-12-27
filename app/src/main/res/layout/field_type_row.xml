@@ -4,13 +4,12 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp"
-    android:layout_marginBottom="20dp">
+    android:layout_marginBottom="2dp">
 
-    <EditText
-        android:id="@+id/job"
-        android:inputType="textPersonName"
-        android:hint="@string/job"
-        android:layout_marginLeft="75dp"
-        style="@style/editText"/>
-
+    <TextView
+        android:id="@+id/field_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:layout_weight="1"/>
 </TableRow>
